@@ -6,8 +6,19 @@
         <link rel="stylesheet" href="/css/style.css">
     </head>
     <body>
+        <?php include __DIR__ . '/nav-bar.php'; ?>
         <div class="register-container">
             <h1>Kayıt Ol</h1>
+            <?php if (!empty($data['error'])): ?>
+                <p style="color:#c0392b; font-weight:700;">
+                    <?= htmlspecialchars($data['error']) ?>
+                </p>
+            <?php endif; ?>
+            <?php if (!empty($data['message'])): ?>
+                <p style="color:green; font-weight:700;">
+                    <?= htmlspecialchars($data['message']) ?>
+                </p>
+            <?php endif; ?>
             <form class="register-form" method="post" action="/index.php?action=register">
                 <div class="form-group">
                     <label for="adi">Adı</label>

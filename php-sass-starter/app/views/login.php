@@ -6,6 +6,7 @@
         <link rel="stylesheet" href="/css/style.css">
     </head>
     <body>
+        <?php include __DIR__ . '/nav-bar.php'; ?>
         <div class="register-container">
             <h1>Giriş Yap</h1>
             <form class="register-form" method="post" action="/index.php?action=login">

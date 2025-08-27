@@ -6,34 +6,25 @@
         <link rel="stylesheet" href="/css/style.css">
     </head>
     <body>
-        <nav class="navbar">
-            <div class="navbar-left">
-                <span class="logo">SASS MVC</span>
-            </div>
-            <div class="navbar-right">
-                <a href="/index.php?action=login" class="nav-link">Giriş Yap</a>
-                <a  style="margin-right:30px" href="/index.php?action=register" class="nav-link">Kayıt Ol</a>
-            </div>
-        </nav>
+        <?php include __DIR__ . '/nav-bar.php'; ?>
         <div class="main-layout">
             <section class="sidebar">
                 <h2>Projeler</h2>
                 <ul class="project-list">
-                    <li>
-                        <a href="#">SASS Başlangıç</a>
-                    </li>
-                    <li>
-                        <a href="#">SASS Değişkenler</a>
-                    </li>
-                    <li>
-                        <a href="#">SASS Fonksiyonlar</a>
-                    </li>
-                    <li>
-                        <a href="#">SASS At-Rules</a>
-                    </li>
-                    <li>
-                        <a href="#">SASS Modüller</a>
-                    </li>
+                    <?php if (!empty($data['docsDirs'])): ?>
+                        <?php $firstSeg = function($p){ $p = trim($p); if ($p==='') return ''; $parts = preg_split('#[\\/]#',$p); return $parts[0] ?? ''; }; ?>
+                        <?php $currentTop = $firstSeg($data['path'] ?? ''); ?>
+                        <?php foreach ($data['docsDirs'] as $dir): ?>
+                            <?php $isActive = $currentTop !== '' && $currentTop === $dir['path']; ?>
+                            <li class="<?= $isActive ? 'active' : '' ?>">
+                                <a href="/index.php?action=docs&amp;path=<?= urlencode($dir['path']) ?>">
+                                    <?= htmlspecialchars($dir['name']) ?>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <li>README klasörü bulunamadı.</li>
+                    <?php endif; ?>
                 </ul>
             </section>
             <section class="main-content">

@@ -9,10 +9,26 @@
 body {
   font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
   margin: 0;
+  padding: 0 10px;
   background: #f7f9fb;
   color: #2c3e50;
 }
 
+@media (min-width: 640px) {
+  body {
+    padding: 0 16px;
+  }
+}
+@media (min-width: 1024px) {
+  body {
+    padding: 0 24px;
+  }
+}
+@media (min-width: 1280px) {
+  body {
+    padding: 0 32px;
+  }
+}
 .navbar {
   width: 100%;
   background: #2c3e50;
@@ -22,6 +38,41 @@ body {
   align-items: center;
   padding: 1.2rem 2.5rem 1.2rem 2.5rem;
   box-shadow: 0 2px 8px rgba(44, 62, 80, 0.07);
+}
+.navbar .search-form {
+  margin-right: 0.8rem;
+}
+.navbar .search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  padding: 0.3rem 0.9rem 0.3rem 0.6rem;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.navbar .search:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.navbar .search:focus-within {
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
+}
+.navbar .search-icon {
+  font-size: 0.95rem;
+  opacity: 0.9;
+  margin-right: 0.35rem;
+}
+.navbar .search-input {
+  width: 220px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 0.98rem;
+}
+.navbar .search-input ::placeholder {
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .navbar-left .logo {
@@ -110,6 +161,87 @@ body {
 .project-list li a:hover {
   background: #e67e22;
   color: #fff;
+}
+
+.project-list li.is-hidden {
+  display: none;
+}
+
+.project-list li.active > a {
+  background: #e67e22;
+  color: #fff;
+}
+
+mark.hl {
+  background: rgba(230, 126, 34, 0.25);
+  padding: 0 2px;
+  border-radius: 3px;
+}
+
+.doc-article {
+  line-height: 1.7;
+}
+
+.doc-article pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 1rem;
+  border-radius: 10px;
+  overflow: auto;
+}
+
+.doc-article code {
+  background: rgba(44, 62, 80, 0.08);
+  padding: 0.1rem 0.35rem;
+  border-radius: 6px;
+}
+
+.doc-article pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.doc-article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  box-shadow: 0 1px 2px rgba(44, 62, 80, 0.06);
+}
+
+.doc-article th, .doc-article td {
+  border: 1px solid rgba(44, 62, 80, 0.15);
+  padding: 0.6rem 0.7rem;
+  text-align: left;
+}
+
+.doc-article thead th {
+  background: rgba(44, 62, 80, 0.07);
+}
+
+.doc-article tbody tr:nth-child(odd) {
+  background: rgba(44, 62, 80, 0.03);
+}
+
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.breadcrumbs .sep {
+  opacity: 0.5;
+}
+
+.breadcrumbs .crumb {
+  text-decoration: none;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.breadcrumbs .crumb.current {
+  color: #e67e22;
 }
 
 .main-content {
@@ -543,5 +675,3 @@ body {
 .navbar .main-layout .login-link a:hover {
   color: #e67e22;
 }
-
-/*# sourceMappingURL=style.css.map */
