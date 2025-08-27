@@ -16,7 +16,7 @@
                         <ul class="search-results">
                             <?php foreach ($data['results'] as $res): ?>
                                 <li class="search-result-item">
-                                    <div class="search-result-file">📄 <a href="/index.php?action=docs&amp;path=<?= urlencode($res['file']) ?>"><?= htmlspecialchars($res['file']) ?></a> (<?= (int)$res['count'] ?>)</div>
+                                    <div class="search-result-file">📄 <a href="/index.php?action=docs&amp;path=<?= urlencode($res['file']) ?>"><?= htmlspecialchars($res['display'] ?? basename($res['file'])) ?></a> <span style="opacity:.6; font-size:.92em;">(<?= htmlspecialchars($res['file']) ?>)</span> <span style="opacity:.6;">— <?= (int)$res['count'] ?> eşleşme</span></div>
                                     <ul class="search-snippets">
                                         <?php foreach ($res['matches'] as $m): ?>
                                             <li>

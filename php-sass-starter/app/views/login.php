@@ -9,10 +9,11 @@
         <?php include __DIR__ . '/nav-bar.php'; ?>
         <div class="register-container">
             <h1>Giriş Yap</h1>
-            <form class="register-form" method="post" action="/index.php?action=login">
+            <?php $next = isset($_GET['next']) ? $_GET['next'] : ($_SESSION['redirect_after_login'] ?? ''); ?>
+            <form class="register-form" method="post" action="/index.php?action=login<?= !empty($next) ? '&amp;next=' . urlencode($next) : '' ?>">
                 <div class="form-group">
                     <label for="mail">Email</label>
-                    <input type="email" id="mail" name="mail" required>
+                    <input type="email" id="mail" name="mail" required value="<?= isset($_POST['mail']) ? htmlspecialchars($_POST['mail']) : '' ?>">
                 </div>
                 <div class="form-group">
                     <label for="sifre">Şifre</label>

@@ -11,6 +11,13 @@ class HomeController
 
     public function register()
     {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        // next param gelirse kaydet
+        if (isset($_GET['next']) && !empty($_GET['next']) && strpos($_GET['next'], '/') === 0) {
+            $_SESSION['redirect_after_login'] = $_GET['next'];
+        }
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             require_once __DIR__ . '/../models/UserModel.php';
         $userModel = new UserModel();
@@ -32,11 +39,33 @@ class HomeController
             return;
             }
             $success = $userModel->createUser($adi, $soyadi, $mail, $sifre);
-            $data = [
-                'success' => $success,
-                'message' => $success ? 'Kayıt başarılı. Giriş yapabilirsiniz.' : 'Kayıt başarısız oldu.'
-            ];
-            include __DIR__ . '/../views/register.php';
+            if ($success) {
+                // Otomatik giriş ve yönlendirme
+                $user = method_exists($userModel, 'getUserByMail') ? $userModel->getUserByMail($mail) : null;
+                if ($user) {
+                    if (method_exists($userModel, 'updateLastLogin')) {
+                        $userModel->updateLastLogin($user['id']);
+                        $user = $userModel->getUser($user['id']);
+                    }
+                    $_SESSION['user'] = $user;
+                }
+                $dest = $_SESSION['redirect_after_login'] ?? null;
+                if ($dest) {
+                    unset($_SESSION['redirect_after_login']);
+                    if (strpos($dest, '/') === 0) {
+                        header('Location: ' . $dest);
+                        exit;
+                    }
+                }
+                header('Location: /index.php?action=profile');
+                exit;
+            } else {
+                $data = [
+                    'success' => false,
+                    'error' => 'Kayıt başarısız oldu.'
+                ];
+                include __DIR__ . '/../views/register.php';
+            }
         } else {
             include __DIR__ . '/../views/register.php';
         }
@@ -307,12 +336,14 @@ class HomeController
             echo 'Dosya okunamadı.';
             return;
         }
-        $html = $this->mdToHtml($content);
+        $toc = [];
+        $html = $this->mdToHtml($content, $toc);
         $breadcrumbs = $this->buildBreadcrumbs(str_replace('\\', '/', $path));
         $data = [
             'title' => basename($target),
             'path' => str_replace('\\', '/', $path),
             'html' => $html,
+            'toc' => $toc,
             'breadcrumbs' => $breadcrumbs,
             'docsDirs' => $this->listReadmeDirs(),
         ];
@@ -383,7 +414,7 @@ class HomeController
         return trim($n);
     }
 
-    private function mdToHtml($md)
+    private function mdToHtml($md, &$toc = null)
     {
         // Basit ve güvenli dönüştürücü: başlıklar, listeler, linkler, görseller, tablolar, kod blokları
         $escaped = htmlspecialchars($md, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -450,12 +481,33 @@ class HomeController
         }
         $html = implode("\n", $parts);
 
+        // Başlıklara id ekle ve TOC üret
+        $toc = [];
+        $html = preg_replace_callback('/<h([1-6])>(.*?)<\/h\1>/', function ($m) use (&$toc) {
+            $level = (int)$m[1];
+            $text = strip_tags($m[2]);
+            $id = $this->slugify($text);
+            $toc[] = ['level' => $level, 'text' => $text, 'id' => $id];
+            return '<h' . $level . ' id="' . $id . '">' . $m[2] . '</h' . $level . '>';
+        }, $html);
+
         // Kod bloklarını geri koy
         foreach ($codeBlocks as $i => $block) {
             $html = str_replace("@@CODEBLOCK{$i}@@", $block, $html);
         }
 
         return $html;
+    }
+
+    private function slugify($text)
+    {
+        $text = mb_strtolower($text, 'UTF-8');
+        $tr = ['ş'=>'s','Ş'=>'s','ı'=>'i','İ'=>'i','ğ'=>'g','Ğ'=>'g','ü'=>'u','Ü'=>'u','ö'=>'o','Ö'=>'o','ç'=>'c','Ç'=>'c'];
+        $text = strtr($text, $tr);
+        $text = preg_replace('/[^a-z0-9\s-]/u', '', $text);
+        $text = preg_replace('/\s+/', '-', trim($text));
+        $text = preg_replace('/-+/', '-', $text);
+        return trim($text, '-');
     }
 
     private function buildBreadcrumbs($path)
@@ -505,8 +557,10 @@ class HomeController
             if ($count > 0) {
                 $rel = ltrim(str_replace($base . DIRECTORY_SEPARATOR, '', $path), DIRECTORY_SEPARATOR);
                 $rel = str_replace('\\', '/', $rel);
+                $display = $this->prettyName(basename($rel));
                 $out[] = [
                     'file' => $rel,
+                    'display' => $display,
                     'count' => $count,
                     'matches' => $matches,
                 ];

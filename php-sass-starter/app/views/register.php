@@ -19,18 +19,19 @@
                     <?= htmlspecialchars($data['message']) ?>
                 </p>
             <?php endif; ?>
-            <form class="register-form" method="post" action="/index.php?action=register">
+            <?php $next = isset($_GET['next']) ? $_GET['next'] : ($_SESSION['redirect_after_login'] ?? ''); ?>
+            <form class="register-form" method="post" action="/index.php?action=register<?= !empty($next) ? '&amp;next=' . urlencode($next) : '' ?>">
                 <div class="form-group">
                     <label for="adi">Adı</label>
-                    <input type="text" id="adi" name="adi" required>
+                    <input type="text" id="adi" name="adi" required value="<?= isset($_POST['adi']) ? htmlspecialchars($_POST['adi']) : '' ?>">
                 </div>
                 <div class="form-group">
                     <label for="soyadi">Soyadı</label>
-                    <input type="text" id="soyadi" name="soyadi" required>
+                    <input type="text" id="soyadi" name="soyadi" required value="<?= isset($_POST['soyadi']) ? htmlspecialchars($_POST['soyadi']) : '' ?>">
                 </div>
                 <div class="form-group">
                     <label for="mail">Email</label>
-                    <input type="email" id="mail" name="mail" required>
+                    <input type="email" id="mail" name="mail" required value="<?= isset($_POST['mail']) ? htmlspecialchars($_POST['mail']) : '' ?>">
                 </div>
                 <div class="form-group">
                     <label for="sifre">Şifre</label>

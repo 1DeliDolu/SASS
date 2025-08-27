@@ -1,3 +1,4 @@
+@use "sass:color";
 .nav-link:last-child {
   margin-right: 1.5rem;
 }
@@ -206,6 +207,35 @@ mark.hl {
   background: rgba(44,62,80,0.03);
 }
 
+// Doc TOC
+.doc-toc {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(44,62,80,0.08);
+  padding: 1rem 1.2rem;
+  border-left: 4px solid $accent;
+  margin-bottom: 1rem;
+}
+.doc-toc-title { font-weight: 800; margin-bottom: 0.6rem; color: $primary; }
+.doc-toc ul { list-style: none; padding-left: 0; margin: 0; }
+.doc-toc li { margin: 0.2rem 0; }
+.doc-toc li.l2 { margin-left: 0.5rem; }
+.doc-toc li.l3 { margin-left: 1rem; }
+.doc-toc li.l4 { margin-left: 1.25rem; }
+.doc-toc a { text-decoration: none; color: $primary; }
+.doc-toc a:hover { text-decoration: underline; }
+
+// Two-column doc layout with sticky TOC
+.doc-detail {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+@media (min-width: 1024px) {
+  .doc-detail { grid-template-columns: 280px 1fr; align-items: start; }
+  .doc-toc { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; }
+}
+
 // Breadcrumbs
 .breadcrumbs {
   display: flex;
@@ -248,7 +278,7 @@ mark.hl {
 }
 .main-content p {
   font-size: 1.13rem;
-  color: darken($primary, 10%);
+  color: color.adjust($primary, $lightness: -10%);
   margin-bottom: 0.7rem;
 }
 
@@ -294,7 +324,7 @@ mark.hl {
 .form-group input {
   width: 100%;
   padding: 0.7rem 1rem;
-  border: 1.5px solid lighten($primary, 40%);
+  border: 1.5px solid color.adjust($primary, $lightness: 40%);
   border-radius: 8px;
   font-size: 1.08rem;
   background: #f7f9fb;
@@ -307,7 +337,7 @@ mark.hl {
   box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.13);
 }
 .btn-primary {
-  background: linear-gradient(90deg, $accent 60%, lighten($accent, 10%) 100%);
+  background: linear-gradient(90deg, $accent 60%, color.adjust($accent, $lightness: 10%) 100%);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -320,7 +350,7 @@ mark.hl {
   transition: background 0.2s, box-shadow 0.2s;
 }
 .btn-primary:hover {
-  background: darken($accent, 10%);
+  background: color.adjust($accent, $lightness: -10%);
   box-shadow: 0 4px 16px rgba(44, 62, 80, 0.13);
 }
 .login-link {
@@ -509,7 +539,7 @@ $base-font: "Helvetica Neue", Arial, sans-serif;
     }
     .main-content p {
       font-size: 1.08rem;
-      color: darken($primary, 10%);
+      color: color.adjust($primary, $lightness: -10%);
       margin-bottom: 0.7rem;
     }
     //
@@ -559,7 +589,7 @@ $base-font: "Helvetica Neue", Arial, sans-serif;
     .form-group input {
       width: 100%;
       padding: 0.7rem 1rem;
-      border: 1.5px solid lighten($primary, 40%);
+      border: 1.5px solid color.adjust($primary, $lightness: 40%);
       border-radius: 8px;
       font-size: 1.08rem;
       background: #f7f9fb;
@@ -577,7 +607,7 @@ $base-font: "Helvetica Neue", Arial, sans-serif;
       background: linear-gradient(
         90deg,
         $accent 60%,
-        lighten($accent, 10%) 100%
+        color.adjust($accent, $lightness: 10%) 100%
       );
       color: #fff;
       border: none;
@@ -592,7 +622,7 @@ $base-font: "Helvetica Neue", Arial, sans-serif;
     }
 
     .btn-primary:hover {
-      background: darken($accent, 10%);
+      background: color.adjust($accent, $lightness: -10%);
       box-shadow: 0 4px 16px rgba(44, 62, 80, 0.13);
     }
 
@@ -640,7 +670,7 @@ $base-font: "Helvetica Neue", Arial, sans-serif;
     .form-group input {
       width: 100%;
       padding: 0.5rem 0.75rem;
-      border: 1px solid lighten($primary, 40%);
+      border: 1px solid color.adjust($primary, $lightness: 40%);
       border-radius: 6px;
       font-size: 1rem;
       background: #f7f9fb;
@@ -667,7 +697,7 @@ $base-font: "Helvetica Neue", Arial, sans-serif;
     }
 
     .btn-primary:hover {
-      background: darken($accent, 8%);
+      background: color.adjust($accent, $lightness: -8%);
     }
 
     .login-link {

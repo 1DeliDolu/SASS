@@ -222,6 +222,70 @@ mark.hl {
   background: rgba(44, 62, 80, 0.03);
 }
 
+.doc-toc {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(44, 62, 80, 0.08);
+  padding: 1rem 1.2rem;
+  border-left: 4px solid #e67e22;
+  margin-bottom: 1rem;
+}
+
+.doc-toc-title {
+  font-weight: 800;
+  margin-bottom: 0.6rem;
+  color: #2c3e50;
+}
+
+.doc-toc ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.doc-toc li {
+  margin: 0.2rem 0;
+}
+
+.doc-toc li.l2 {
+  margin-left: 0.5rem;
+}
+
+.doc-toc li.l3 {
+  margin-left: 1rem;
+}
+
+.doc-toc li.l4 {
+  margin-left: 1.25rem;
+}
+
+.doc-toc a {
+  text-decoration: none;
+  color: #2c3e50;
+}
+
+.doc-toc a:hover {
+  text-decoration: underline;
+}
+
+.doc-detail {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .doc-detail {
+    grid-template-columns: 280px 1fr;
+    align-items: start;
+  }
+  .doc-toc {
+    position: sticky;
+    top: 16px;
+    max-height: calc(100vh - 32px);
+    overflow: auto;
+  }
+}
 .breadcrumbs {
   display: flex;
   flex-wrap: wrap;

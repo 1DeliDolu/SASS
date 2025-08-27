@@ -50,9 +50,29 @@
                         <?php endforeach; ?>
                     </ul>
                 <?php elseif (!empty($data['html'])): ?>
-                    <article class="doc-article">
-                        <?= $data['html'] ?>
-                    </article>
+                    <?php if (!empty($data['toc'])): ?>
+                        <div class="doc-detail">
+                            <aside class="doc-toc">
+                                <div class="doc-toc-title">İçindekiler</div>
+                                <ul>
+                                    <?php foreach ($data['toc'] as $t): ?>
+                                        <?php if ($t['level'] <= 4): // yalnızca h1-h4 ?>
+                                            <li class="l<?= (int)$t['level'] ?>">
+                                                <a href="#<?= htmlspecialchars($t['id']) ?>"><?= htmlspecialchars($t['text']) ?></a>
+                                            </li>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </aside>
+                            <article class="doc-article">
+                                <?= $data['html'] ?>
+                            </article>
+                        </div>
+                    <?php else: ?>
+                        <article class="doc-article">
+                            <?= $data['html'] ?>
+                        </article>
+                    <?php endif; ?>
                 <?php else: ?>
                     <p>İçerik bulunamadı.</p>
                 <?php endif; ?>

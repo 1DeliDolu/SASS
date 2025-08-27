@@ -15,7 +15,7 @@
             <div style="display:flex; gap:0.75rem; margin-top:1rem;">
                 <?php $next = isset($_SERVER['REQUEST_URI']) ? urlencode($_SERVER['REQUEST_URI']) : ''; ?>
                 <a class="btn-primary" href="/index.php?action=login<?= $next ? '&amp;next=' . $next : '' ?>" style="text-decoration:none; display:inline-block;">Giriş Yap</a>
-                <a class="nav-link" href="/index.php?action=register">Kayıt Ol</a>
+                <a class="nav-link" href="/index.php?action=register<?= $next ? '&amp;next=' . $next : '' ?>">Kayıt Ol</a>
             </div>
         </div>
     </body>
