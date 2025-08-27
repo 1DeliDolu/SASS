@@ -1,0 +1,12 @@
+{
+    "name": "php-sass-starter",
+    "version": "1.0.0",
+    "description": "Basit PHP projesi — SASS ile stil derleme örneği",
+    "scripts": {
+        "sass": "sass --no-source-map scss:public/css",
+        "sass:watch": "sass --watch scss:public/css"
+    },
+    "devDependencies": {
+        "sass": "^1.73.1"
+    }
+}
