@@ -38,6 +38,9 @@ switch ($action) {
     case 'admin_update_role':
         $admin->updateRole();
         break;
+    case 'admin_user_new':
+        $admin->userNew();
+        break;
     case 'admin_user_create':
         $admin->userCreate();
         break;

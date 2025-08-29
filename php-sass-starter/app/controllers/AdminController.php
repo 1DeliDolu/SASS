@@ -230,4 +230,10 @@ class AdminController
         header('Location: /index.php?action=admin_project_edit&id=' . $project_id);
         exit;
     }
+
+    public function userNew()
+    {
+        $this->requireAdmin();
+        include __DIR__ . '/../views/admin/users/create.php';
+    }
 }
