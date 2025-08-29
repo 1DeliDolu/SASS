@@ -163,3 +163,11 @@ php-sass-starter/
 ├─ package.json
 └─ README.md (diese Datei)
 ```
+
+  <img src="public/img/image.png" alt="image_1.png" style="max-width: 600px; border: 1px solid #ccc;">
+
+  ## Admin panel
+
+  <img src="public/img/image-1.png" alt="image_1.png" style="max-width: 600px; border: 1px solid #ccc;">
+
+
