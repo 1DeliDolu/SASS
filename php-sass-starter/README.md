@@ -132,11 +132,29 @@ Bekannte Einschränkungen
 - Weiterentwicklungsidee: Aktive TOC-Hervorhebung in Überschriften, Baumansicht im Docs-Menü, erweiterter Markdown-Support.
 
 Screenshots
+
+### Homepage
+
 ![Startseite](public/img/home.png)
+<br>
+
+### Login
 ![Login](public/img/login.png)
+<br>
+
+### Register 
 ![Registrieren](public/img/register.png)
+<br>
+
+### Docs-toc
 ![Docs + TOC](public/img/docs-toc.png)
+<br>
+
+### Search
 ![Suchergebnisse](public/img/search.png)
+<br>
+
+### Auth-required 
 ![Zugriff erforderlich](public/img/auth-required.png)
 
 Hinweis: Legen Sie die Screenshots unter `public/img/` ab; sie werden automatisch über die obigen Pfade geladen.
@@ -163,11 +181,20 @@ php-sass-starter/
 ├─ package.json
 └─ README.md (diese Datei)
 ```
+## Admin
 
-  <img src="public/img/image.png" alt="image_1.png" style="max-width: 600px; border: 1px solid #ccc;">
+  **Statusfarben:**
+  - Bis zu 7 Tage verbleibend: <span style="color: green;">grün</span>
+  - Bis zu 3 Tage verbleibend: <span style="color: orange;">orange</span>
+  - Nach Ablauf: <span style="color: red;">rot</span>
+
+  ![alt text](./public/img/image.png)
 
   ## Admin panel
 
-  <img src="public/img/image-1.png" alt="image_1.png" style="max-width: 600px; border: 1px solid #ccc;">
+ ![alt text](./public/img/image-1.png)
 
+## Project- Verwaltung
+
+![Projet-Verwaltung](./public/img/image-2.png)
 

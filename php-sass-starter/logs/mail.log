@@ -1,0 +1,25 @@
+[2025-08-29 21:21:13] TO=deli@de.de | SUBJ=Projeye atandınız: Desktop_APP
+HTML:
+<p>Projeye atandınız.</p>
+
+---
+[2025-08-29 21:21:15] TO=musteri2@example.com | SUBJ=Proje güncellendi: Desktop_APP
+HTML:
+<p>Proje güncellendi.</p><ul><li>Ad: Desktop_APP</li><li>Durum: yeni</li></ul>
+
+---
+[2025-08-29 21:21:15] TO=deli@de.de | SUBJ=Proje güncellendi: Desktop_APP
+HTML:
+<p>Proje güncellendi.</p><ul><li>Ad: Desktop_APP</li><li>Durum: yeni</li></ul>
+
+---
+[2025-08-29 21:21:15] TO=calisan2@example.com | SUBJ=Proje güncellendi: Desktop_APP
+HTML:
+<p>Proje güncellendi.</p><ul><li>Ad: Desktop_APP</li><li>Durum: yeni</li></ul>
+
+---
+[2025-08-29 21:21:15] TO=e@gmail.de | SUBJ=Proje güncellendi: Desktop_APP
+HTML:
+<p>Proje güncellendi.</p><ul><li>Ad: Desktop_APP</li><li>Durum: yeni</li></ul>
+
+---
