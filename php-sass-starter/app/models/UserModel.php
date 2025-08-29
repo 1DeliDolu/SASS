@@ -1,27 +1,13 @@
 <?php
-// MySQL bağlantı ve kullanıcı modeli
+// MySQL Verbindung und Benutzermodell
 class UserModel
 {
     private $pdo;
 
     public function __construct()
     {
-        $host = 'localhost';
-        $db = 'sass';
-        $user = 'root';
-        $pass = '';
-        $charset = 'utf8mb4';
-        $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
-        $options = [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-        ];
-        try {
-            $this->pdo = new PDO($dsn, $user, $pass, $options);
-        } catch (PDOException $e) {
-            throw new PDOException($e->getMessage(), (int) $e->getCode());
-        }
+        require_once __DIR__ . '/../lib/Database.php';
+        $this->pdo = Database::pdo();
     }
 
     public function getUserByMail($mail)
@@ -39,6 +25,17 @@ class UserModel
         return $stmt->execute([$adi, $soyadi, $mail, password_hash($sifre, PASSWORD_DEFAULT)]);
     }
 
+    public function createUserWithRole($adi, $soyadi, $mail, $sifre, $role = 'calisan')
+    {
+        $allowed = ['admin','calisan','musteri'];
+        if (!in_array($role, $allowed, true)) {
+            $role = 'calisan';
+        }
+        $sql = "INSERT INTO users (adi, soyadi, mail, sifre, role, olusturma_tarihi, guncelleme_tarihi) VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([$adi, $soyadi, $mail, password_hash($sifre, PASSWORD_DEFAULT), $role]);
+    }
+
     public function updateUser($id, $adi, $soyadi, $mail, $sifre)
     {
         $sql = "UPDATE users SET adi=?, soyadi=?, mail=?, sifre=?, guncelleme_tarihi=NOW() WHERE id=?";
@@ -46,7 +43,7 @@ class UserModel
         return $stmt->execute([$adi, $soyadi, $mail, password_hash($sifre, PASSWORD_DEFAULT), $id]);
     }
 
-    // Şifre değişmeden güncelleme için esnek sürüm.
+    // Flexible Version für Update ohne Passwortänderung.
     public function updateUserFields($id, $adi, $soyadi, $mail, $sifre = null)
     {
         if ($sifre === null || $sifre === '') {
@@ -81,8 +78,49 @@ class UserModel
             $stmt = $this->pdo->prepare($sql);
             return $stmt->execute([$id]);
         } catch (PDOException $e) {
-            // son_giris_tarihi kolonu yoksa sessizce geç.
+            // Wenn die Spalte son_giris_tarihi nicht existiert, stillschweigend überspringen.
             return false;
+        }
+    }
+
+    public function setUserRole($id, $role)
+    {
+        $allowed = ['admin', 'calisan', 'musteri'];
+        if (!in_array($role, $allowed, true))
+            return false;
+        // Versuche zuerst die Spalte type zu aktualisieren, falls nicht, dann die Spalte role.
+        try {
+            $stmt = $this->pdo->prepare("UPDATE users SET type=?, guncelleme_tarihi=NOW() WHERE id=?");
+            if ($stmt->execute([$role, $id]))
+                return true;
+        } catch (PDOException $e) {
+            // Ignorieren und role aktualisieren
+        }
+        try {
+            $stmt = $this->pdo->prepare("UPDATE users SET role=?, guncelleme_tarihi=NOW() WHERE id=?");
+            return $stmt->execute([$role, $id]);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public function getUsersByRole($role)
+    {
+        // Versuche zuerst mit der Spalte role; falls nicht vorhanden, dann mit type.
+        try {
+            $sql = "SELECT * FROM users WHERE role=? ORDER BY id DESC";
+            $st = $this->pdo->prepare($sql);
+            $st->execute([$role]);
+            return $st->fetchAll();
+        } catch (PDOException $e) {
+            try {
+                $sql = "SELECT * FROM users WHERE type=? ORDER BY id DESC";
+                $st = $this->pdo->prepare($sql);
+                $st->execute([$role]);
+                return $st->fetchAll();
+            } catch (PDOException $e2) {
+                return [];
+            }
         }
     }
 }

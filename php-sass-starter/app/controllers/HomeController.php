@@ -4,7 +4,7 @@ class HomeController
 {
     public function index()
     {
-        $data = ['title' => 'SASS MVC Başlangıç', 'message' => 'Hoşgeldiniz!'];
+        $data = ['title' => 'SASS MVC Başlangıç', 'message' => 'Willkommen!'];
         $data['docsDirs'] = $this->listReadmeDirs();
         include __DIR__ . '/../views/home.php';
     }
@@ -20,23 +20,23 @@ class HomeController
         }
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             require_once __DIR__ . '/../models/UserModel.php';
-        $userModel = new UserModel();
-        $adi = $_POST['adi'] ?? '';
-        $soyadi = $_POST['soyadi'] ?? '';
-        $mail = $_POST['mail'] ?? '';
-        $sifre = $_POST['sifre'] ?? '';
-        // Şifre politikası kontrolü
-        $pwdError = $this->validatePassword($sifre);
-        if ($pwdError) {
-            $data = ['error' => $pwdError];
-            include __DIR__ . '/../views/register.php';
-            return;
-        }
-        // E‑posta var mı kontrol et
-        if ($this->emailExists($userModel, $mail)) {
-            $data = ['error' => 'Bu e‑posta ile kayıtlı bir kullanıcı zaten var.'];
-            include __DIR__ . '/../views/register.php';
-            return;
+            $userModel = new UserModel();
+            $adi = $_POST['adi'] ?? '';
+            $soyadi = $_POST['soyadi'] ?? '';
+            $mail = $_POST['mail'] ?? '';
+            $sifre = $_POST['sifre'] ?? '';
+            // Şifre politikası kontrolü
+            $pwdError = $this->validatePassword($sifre);
+            if ($pwdError) {
+                $data = ['error' => $pwdError];
+                include __DIR__ . '/../views/register.php';
+                return;
+            }
+            // E‑posta var mı kontrol et
+            if ($this->emailExists($userModel, $mail)) {
+                $data = ['error' => 'Bu e‑posta ile kayıtlı bir kullanıcı zaten var.'];
+                include __DIR__ . '/../views/register.php';
+                return;
             }
             $success = $userModel->createUser($adi, $soyadi, $mail, $sifre);
             if ($success) {
@@ -250,9 +250,14 @@ class HomeController
         $_SESSION = [];
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
-            setcookie(session_name(), '', time() - 42000,
-                $params['path'], $params['domain'],
-                $params['secure'], $params['httponly']
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params['path'],
+                $params['domain'],
+                $params['secure'],
+                $params['httponly']
             );
         }
         session_destroy();
@@ -353,7 +358,8 @@ class HomeController
     private function listReadmeDirs()
     {
         $base = realpath(__DIR__ . '/../../README');
-        if (!$base) return [];
+        if (!$base)
+            return [];
         $dirs = array_filter(glob($base . DIRECTORY_SEPARATOR . '*'), 'is_dir');
         // sırala
         natcasesort($dirs);
@@ -377,7 +383,8 @@ class HomeController
         $items = scandir($dir);
         $files = [];
         foreach ($items as $it) {
-            if ($it === '.' || $it === '..') continue;
+            if ($it === '.' || $it === '..')
+                continue;
             $full = $dir . DIRECTORY_SEPARATOR . $it;
             if (is_dir($full)) {
                 $rel = ltrim(str_replace($base, '', $full), DIRECTORY_SEPARATOR);
@@ -398,7 +405,8 @@ class HomeController
             }
         }
         // natural sort by path
-        usort($files, function($a, $b){ return strnatcasecmp($a['path'], $b['path']); });
+        usort($files, function ($a, $b) {
+            return strnatcasecmp($a['path'], $b['path']); });
         // URL'ler için ileri eğik çizgi kullan
         foreach ($files as &$f) {
             $f['path'] = ltrim(str_replace('\\', '/', $f['path']), '/');
@@ -454,7 +462,8 @@ class HomeController
                 $cells = array_map('trim', explode('|', $line));
                 $out = '';
                 foreach ($cells as $c) {
-                    if ($c === '') continue;
+                    if ($c === '')
+                        continue;
                     $out .= "<{$cellTag}>{$c}</{$cellTag}>";
                 }
                 return '<tr>' . $out . '</tr>';
@@ -463,7 +472,8 @@ class HomeController
             $tbodyLines = preg_split('/\r?\n/', trim($m[3]));
             $tbody = '';
             foreach ($tbodyLines as $ln) {
-                if (trim($ln) === '' || strpos($ln, '|') === false) continue;
+                if (trim($ln) === '' || strpos($ln, '|') === false)
+                    continue;
                 $tbody .= $makeRow($ln, 'td');
             }
             return '<table><thead>' . $thead . '</thead><tbody>' . $tbody . '</tbody></table>';
@@ -484,7 +494,7 @@ class HomeController
         // Başlıklara id ekle ve TOC üret
         $toc = [];
         $html = preg_replace_callback('/<h([1-6])>(.*?)<\/h\1>/', function ($m) use (&$toc) {
-            $level = (int)$m[1];
+            $level = (int) $m[1];
             $text = strip_tags($m[2]);
             $id = $this->slugify($text);
             $toc[] = ['level' => $level, 'text' => $text, 'id' => $id];
@@ -502,7 +512,7 @@ class HomeController
     private function slugify($text)
     {
         $text = mb_strtolower($text, 'UTF-8');
-        $tr = ['ş'=>'s','Ş'=>'s','ı'=>'i','İ'=>'i','ğ'=>'g','Ğ'=>'g','ü'=>'u','Ü'=>'u','ö'=>'o','Ö'=>'o','ç'=>'c','Ç'=>'c'];
+        $tr = ['ş' => 's', 'Ş' => 's', 'ı' => 'i', 'İ' => 'i', 'ğ' => 'g', 'Ğ' => 'g', 'ü' => 'u', 'Ü' => 'u', 'ö' => 'o', 'Ö' => 'o', 'ç' => 'c', 'Ç' => 'c'];
         $text = strtr($text, $tr);
         $text = preg_replace('/[^a-z0-9\s-]/u', '', $text);
         $text = preg_replace('/\s+/', '-', trim($text));
@@ -514,11 +524,13 @@ class HomeController
     {
         $crumbs = [];
         $crumbs[] = ['name' => 'README', 'path' => ''];
-        if ($path === '' || $path === false) return $crumbs;
+        if ($path === '' || $path === false)
+            return $crumbs;
         $parts = preg_split('#[\\/]#', $path);
         $acc = '';
         foreach ($parts as $idx => $part) {
-            if ($part === '') continue;
+            if ($part === '')
+                continue;
             $acc = $acc === '' ? $part : $acc . '/' . $part;
             $crumbs[] = [
                 'name' => $this->prettyName($part),
@@ -537,11 +549,14 @@ class HomeController
         $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($base));
         $out = [];
         foreach ($rii as $file) {
-            if ($file->isDir()) continue;
+            if ($file->isDir())
+                continue;
             $path = $file->getPathname();
-            if (strtolower(pathinfo($path, PATHINFO_EXTENSION)) !== 'md') continue;
+            if (strtolower(pathinfo($path, PATHINFO_EXTENSION)) !== 'md')
+                continue;
             $lines = @file($path, FILE_IGNORE_NEW_LINES);
-            if ($lines === false) continue;
+            if ($lines === false)
+                continue;
             $matches = [];
             $count = 0;
             foreach ($lines as $idx => $line) {
@@ -551,7 +566,8 @@ class HomeController
                         'line' => $idx + 1,
                         'text' => $line,
                     ];
-                    if (count($matches) >= 5) break; // her dosyadan en fazla 5 satır
+                    if (count($matches) >= 5)
+                        break; // her dosyadan en fazla 5 satır
                 }
             }
             if ($count > 0) {

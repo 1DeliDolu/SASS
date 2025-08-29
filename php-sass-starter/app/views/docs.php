@@ -1,32 +1,33 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="de">
     <head>
         <meta charset="UTF-8">
-        <title><?= htmlspecialchars($data['title'] ?? 'Dokümanlar') ?></title>
+        <title><?= htmlspecialchars($data['title'] ?? 'Dokumente') ?></title>
         <link rel="stylesheet" href="/css/style.css">
     </head>
     <body>
         <?php include __DIR__ . '/nav-bar.php'; ?>
         <div class="main-layout">
             <section class="sidebar">
-                <h2>Projeler</h2>
+                <h2>Themen</h2>
                 <ul class="project-list">
                     <?php if (!empty($data['docsDirs'])): ?>
                         <?php foreach ($data['docsDirs'] as $dir): ?>
-                            <li>
-                                <a href="/index.php?action=docs&amp;path=<?= urlencode($dir['path']) ?>">
-                                    <?= htmlspecialchars($dir['name']) ?>
+                                <li><a
+                                    href="/index.php?action=docs&amp;path=<?= urlencode($dir['path']) ?>"> <?= htmlspecialchars($dir['name']) ?>
                                 </a>
                             </li>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </ul>
             </section>
-            <section class="main-content">
+            <section
+                class="main-content">
                 <?php if (!empty($data['breadcrumbs'])): ?>
                     <nav class="breadcrumbs">
                         <?php foreach ($data['breadcrumbs'] as $i => $bc): ?>
-                            <?php if ($i > 0): ?> <span class="sep">/</span> <?php endif; ?>
+                            <?php if ($i > 0): ?><span class="sep"> /</span>
+                            <?php endif; ?>
                             <?php if ($i === count($data['breadcrumbs']) - 1): ?>
                                 <span class="crumb current"><?= htmlspecialchars($bc['name']) ?></span>
                             <?php else: ?>
@@ -40,11 +41,15 @@
                     <ul class="project-list">
                         <?php foreach ($data['listing'] as $it): ?>
                             <?php $isActive = isset($data['path']) && $data['path'] === $it['path']; ?>
-                            <li class="<?= $isActive ? 'active' : '' ?>">
-                                <?php if ($it['type'] === 'dir'): ?>
-                                    <a href="/index.php?action=docs&amp;path=<?= urlencode($it['path']) ?>">📁 <?= htmlspecialchars($it['name']) ?></a>
+                                <li
+                                class="<?= $isActive ? 'active' : '' ?>"> <?php if ($it['type'] === 'dir'): ?>
+                                    <a href="/index.php?action=docs&amp;path=<?= urlencode($it['path']) ?>">📁
+                                        <?= htmlspecialchars($it['name']) ?>
+                                    </a>
                                 <?php else: ?>
-                                    <a href="/index.php?action=docs&amp;path=<?= urlencode($it['path']) ?>">📄 <?= htmlspecialchars($it['name']) ?></a>
+                                    <a href="/index.php?action=docs&amp;path=<?= urlencode($it['path']) ?>">📄
+                                        <?= htmlspecialchars($it['name']) ?>
+                                    </a>
                                 <?php endif; ?>
                             </li>
                         <?php endforeach; ?>
@@ -53,30 +58,30 @@
                     <?php if (!empty($data['toc'])): ?>
                         <div class="doc-detail">
                             <aside class="doc-toc">
-                                <div class="doc-toc-title">İçindekiler</div>
+                                <div class="doc-toc-title">Inhalt</div>
                                 <ul>
                                     <?php foreach ($data['toc'] as $t): ?>
                                         <?php if ($t['level'] <= 4): // yalnızca h1-h4 ?>
-                                            <li class="l<?= (int)$t['level'] ?>">
-                                                <a href="#<?= htmlspecialchars($t['id']) ?>"><?= htmlspecialchars($t['text']) ?></a>
+                                                <li class="l<?= (int) $t['level'] ?>"> <a href="#<?= htmlspecialchars($t['id']) ?>"><?= htmlspecialchars($t['text']) ?></a>
                                             </li>
                                         <?php endif; ?>
                                     <?php endforeach; ?>
                                 </ul>
                             </aside>
-                            <article class="doc-article">
-                                <?= $data['html'] ?>
+                            <article
+                                class="doc-article"><?= $data['html'] ?>
                             </article>
                         </div>
                     <?php else: ?>
-                        <article class="doc-article">
-                            <?= $data['html'] ?>
+                        <article
+                            class="doc-article"><?= $data['html'] ?>
                         </article>
                     <?php endif; ?>
                 <?php else: ?>
-                    <p>İçerik bulunamadı.</p>
+                    <p>Kein Inhalt gefunden.</p>
                 <?php endif; ?>
             </section>
         </div>
     </body>
-    </html>
+</html>
+

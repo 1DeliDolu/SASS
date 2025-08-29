@@ -201,25 +201,26 @@ mark.hl {
   padding: 0;
 }
 
-.doc-article table {
+.doc-article table, .table {
   width: 100%;
   border-collapse: collapse;
   margin: 1rem 0;
-  box-shadow: 0 1px 2px rgba(44, 62, 80, 0.06);
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(44, 62, 80, 0.08);
 }
-
-.doc-article th, .doc-article td {
-  border: 1px solid rgba(44, 62, 80, 0.15);
-  padding: 0.6rem 0.7rem;
+.doc-article table th, .table th, .doc-article table td, .table td {
+  border: 1px solid rgba(44, 62, 80, 0.12);
+  padding: 0.7rem 0.9rem;
   text-align: left;
 }
-
-.doc-article thead th {
-  background: rgba(44, 62, 80, 0.07);
+.doc-article table thead th, .table thead th {
+  background: rgba(44, 62, 80, 0.06);
+  font-weight: 800;
 }
-
-.doc-article tbody tr:nth-child(odd) {
-  background: rgba(44, 62, 80, 0.03);
+.doc-article table tbody tr:nth-child(odd), .table tbody tr:nth-child(odd) {
+  background: rgba(44, 62, 80, 0.02);
 }
 
 .doc-toc {
@@ -306,6 +307,94 @@ mark.hl {
 
 .breadcrumbs .crumb.current {
   color: #e67e22;
+}
+
+.milestone-badge {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #fff;
+}
+.milestone-badge.green {
+  background: #22c55e;
+}
+.milestone-badge.yellow {
+  background: #eab308;
+}
+.milestone-badge.orange {
+  background: #f59e0b;
+}
+.milestone-badge.red {
+  background: #ef4444;
+}
+
+.muted {
+  opacity: 0.6;
+}
+
+.btn-action, form[action*=admin_project_delete] button {
+  display: inline-block;
+  padding: 0.38rem 0.75rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  line-height: 1;
+  min-width: 92px;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+}
+
+a.btn-action {
+  text-decoration: none;
+}
+
+.btn-edit {
+  background: #0ea5e9;
+  color: #fff;
+  padding: 0.33rem 0.65rem;
+  min-width: 80px;
+}
+.btn-edit:hover {
+  background: #0284c7;
+  color: #fff;
+}
+
+.table-wrap {
+  width: 100%;
+  overflow: auto;
+}
+
+.table-sticky thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.table tbody tr:hover {
+  background: rgba(44, 62, 80, 0.06);
+}
+
+.table-compact th, .table-compact td {
+  padding: 0.5rem 0.7rem;
+}
+
+.ellipsis {
+  display: inline-block;
+  max-width: 26ch;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+form[action*=admin_project_delete] button {
+  background: #ef4444;
+  color: #fff;
+}
+form[action*=admin_project_delete] button:hover {
+  background: #dc2626;
 }
 
 .main-content {
