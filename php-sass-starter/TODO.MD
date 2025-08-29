@@ -51,3 +51,11 @@ Zamanlama (öneri)
 - Gün 1: Mailer, .env, şablon yapısı
 - Gün 2: Tetikleyici entegrasyonları (create/update/delete)
 - Gün 3: Atama ve milestone bildirimleri, test ve iyileştirme
+
+Ek İyileştirmeler (Öneriler)
+- [ ] Güncelleme e-postasında alan bazlı ayrıntılı diff (eski → yeni) gösterimi
+- [ ] E‑posta içeriklerini I18n ile TR/DE yerelleştirme (konu + gövde)
+- [ ] Mailer’ı gerçek SMTP gönderime geçirmek (PHPMailer ya da native SMTP soketi; TLS/SSL ve kimlik doğrulama desteği)
+- [ ] `app/views/emails/` altında ortak header/footer’lı HTML e‑posta şablonları (markalama/tema ile)
+- [ ] Bildirim tercihleri (kullanıcı bazlı aç/kapat) ve yoğun gönderime karşı hız sınırlama
+- [ ] “Test e‑postası gönder” ve “tekrar gönder” yardımcı aksiyonları (sadece admin)

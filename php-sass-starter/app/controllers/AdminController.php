@@ -57,6 +57,19 @@ class AdminController
             if ($error === '') {
                 $id = $pm->create($ad, $aciklama, $musteri_id ?: null, $durum);
                 if ($id > 0) {
+                    // Notify customer about new project
+                    try {
+                        require_once __DIR__ . '/../lib/Mailer.php';
+                        $proj = $pm->get($id);
+                        if (!empty($proj['musteri_mail'])) {
+                            $sub = 'Yeni proje oluşturuldu: ' . (string)($proj['ad'] ?? '');
+                            $html = '<p>Yeni proje oluşturuldu.</p><ul>' .
+                                    '<li>Ad: ' . htmlspecialchars((string)($proj['ad'] ?? '')) . '</li>' .
+                                    '<li>Durum: ' . htmlspecialchars((string)($proj['durum'] ?? '')) . '</li>' .
+                                    '</ul>';
+                            Mailer::send((string)$proj['musteri_mail'], $sub, $html);
+                        }
+                    } catch (Throwable $e) { /* ignore mail errors */ }
                     header('Location: /index.php?action=admin_projects');
                     exit;
                 }
@@ -91,6 +104,20 @@ class AdminController
             if ($error === '') {
                 $ok = $pm->updateProject($id, $ad, $aciklama, $musteri_id ?: null, $durum);
                 if ($ok) {
+                    // Notify changes (basic)
+                    try {
+                        require_once __DIR__ . '/../lib/Mailer.php';
+                        $new = $pm->get($id);
+                        $subject = 'Proje güncellendi: ' . (string)($new['ad'] ?? '');
+                        $html = '<p>Proje güncellendi.</p>' .
+                                '<ul><li>Ad: ' . htmlspecialchars((string)($new['ad'] ?? '')) . '</li>' .
+                                '<li>Durum: ' . htmlspecialchars((string)($new['durum'] ?? '')) . '</li></ul>';
+                        if (!empty($new['musteri_mail'])) { Mailer::send((string)$new['musteri_mail'], $subject, $html); }
+                        $assigns = $pm->getAssignments($id);
+                        $to = [];
+                        foreach ($assigns as $a) { if (!empty($a['mail'])) { $to[] = (string)$a['mail']; } }
+                        if (!empty($to)) { Mailer::sendMany($to, $subject, $html); }
+                    } catch (Throwable $e) { /* ignore */ }
                     header('Location: /index.php?action=admin_projects');
                     exit;
                 }
@@ -116,7 +143,20 @@ class AdminController
         if ($id > 0) {
             require_once __DIR__ . '/../models/ProjectModel.php';
             $pm = new ProjectModel();
+            // collect info before delete
+            $proj = $pm->get($id);
+            $assigns = $pm->getAssignments($id);
             $pm->delete($id);
+            // Notify customer and assigned employees
+            try {
+                require_once __DIR__ . '/../lib/Mailer.php';
+                $sub = 'Proje silindi: ' . (string)($proj['ad'] ?? '');
+                $html = '<p>Proje silindi.</p>';
+                if (!empty($proj['musteri_mail'])) { Mailer::send((string)$proj['musteri_mail'], $sub, $html); }
+                $to = [];
+                foreach ($assigns as $a) { if (!empty($a['mail'])) { $to[] = (string)$a['mail']; } }
+                if (!empty($to)) { Mailer::sendMany($to, $sub, $html); }
+            } catch (Throwable $e) { /* ignore */ }
         }
         header('Location: /index.php?action=admin_projects');
         exit;
@@ -132,6 +172,19 @@ class AdminController
             require_once __DIR__ . '/../models/ProjectModel.php';
             $pm = new ProjectModel();
             $pm->addAssignment($project_id, $calisan_id, $rol_projede);
+            // Notify assigned employee
+            try {
+                require_once __DIR__ . '/../models/UserModel.php';
+                require_once __DIR__ . '/../lib/Mailer.php';
+                $um = new UserModel();
+                $user = $um->getUser($calisan_id);
+                $project = $pm->get($project_id);
+                if (!empty($user['mail'])) {
+                    $sub = 'Projeye atandınız: ' . (string)($project['ad'] ?? '');
+                    $html = '<p>Projeye atandınız.</p>';
+                    Mailer::send((string)$user['mail'], $sub, $html);
+                }
+            } catch (Throwable $e) { /* ignore */ }
         }
         header('Location: /index.php?action=admin_project_edit&id=' . $project_id);
         exit;
@@ -146,6 +199,19 @@ class AdminController
             require_once __DIR__ . '/../models/ProjectModel.php';
             $pm = new ProjectModel();
             $pm->removeAssignment($project_id, $calisan_id);
+            // Notify removed employee
+            try {
+                require_once __DIR__ . '/../models/UserModel.php';
+                require_once __DIR__ . '/../lib/Mailer.php';
+                $um = new UserModel();
+                $user = $um->getUser($calisan_id);
+                $project = $pm->get($project_id);
+                if (!empty($user['mail'])) {
+                    $sub = 'Projeden çıkarıldınız: ' . (string)($project['ad'] ?? '');
+                    $html = '<p>Projeden çıkarıldınız.</p>';
+                    Mailer::send((string)$user['mail'], $sub, $html);
+                }
+            } catch (Throwable $e) { /* ignore */ }
         }
         header('Location: /index.php?action=admin_project_edit&id=' . $project_id);
         exit;
@@ -212,6 +278,19 @@ class AdminController
             require_once __DIR__ . '/../models/ProjectModel.php';
             $pm = new ProjectModel();
             $pm->addMilestone($project_id, $baslik, $due_date);
+            // Notify customer and assigned employees
+            try {
+                require_once __DIR__ . '/../lib/Mailer.php';
+                $project = $pm->get($project_id);
+                $assigns = $pm->getAssignments($project_id);
+                $sub = 'Milestone eklendi: ' . (string)$baslik;
+                $html = '<p>Yeni milestone eklendi: <strong>' . htmlspecialchars($baslik) . '</strong></p>' .
+                        '<p>Termin: ' . htmlspecialchars($due_date) . '</p>';
+                if (!empty($project['musteri_mail'])) { Mailer::send((string)$project['musteri_mail'], $sub, $html); }
+                $to = [];
+                foreach ($assigns as $a) { if (!empty($a['mail'])) { $to[] = (string)$a['mail']; } }
+                if (!empty($to)) { Mailer::sendMany($to, $sub, $html); }
+            } catch (Throwable $e) { /* ignore */ }
         }
         header('Location: /index.php?action=admin_project_edit&id=' . $project_id);
         exit;
@@ -226,6 +305,18 @@ class AdminController
             require_once __DIR__ . '/../models/ProjectModel.php';
             $pm = new ProjectModel();
             $pm->markMilestoneDone($milestone_id);
+            // Notify
+            try {
+                require_once __DIR__ . '/../lib/Mailer.php';
+                $project = $pm->get($project_id);
+                $assigns = $pm->getAssignments($project_id);
+                $sub = 'Milestone tamamlandı';
+                $html = '<p>Bir milestone tamamlandı.</p>';
+                if (!empty($project['musteri_mail'])) { Mailer::send((string)$project['musteri_mail'], $sub, $html); }
+                $to = [];
+                foreach ($assigns as $a) { if (!empty($a['mail'])) { $to[] = (string)$a['mail']; } }
+                if (!empty($to)) { Mailer::sendMany($to, $sub, $html); }
+            } catch (Throwable $e) { /* ignore */ }
         }
         header('Location: /index.php?action=admin_project_edit&id=' . $project_id);
         exit;
