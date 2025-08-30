@@ -25,6 +25,8 @@ class Database
         }
         try {
             self::$pdo = new PDO($dsn, $user, $pass, $opts);
+            // Align MySQL session time zone with app time zone (Europe/Berlin by default)
+            self::setSessionTimeZone(self::$pdo);
             // Ensure schema exists (idempotent)
             self::ensureSchema(self::$pdo);
         } catch (PDOException $e) {
@@ -34,6 +36,23 @@ class Database
             die($msg);
         }
         return self::$pdo;
+    }
+
+    private static function setSessionTimeZone(PDO $pdo): void
+    {
+        try {
+            $tzId = getenv('APP_TZ') ?: 'Europe/Berlin';
+            $dt = new DateTime('now', new DateTimeZone($tzId));
+            $offset = $dt->getOffset();
+            $sign = $offset >= 0 ? '+' : '-';
+            $offset = abs($offset);
+            $hh = str_pad((string) intdiv($offset, 3600), 2, '0', STR_PAD_LEFT);
+            $mm = str_pad((string) intdiv($offset % 3600, 60), 2, '0', STR_PAD_LEFT);
+            $tzOffset = "$sign$hh:$mm";
+            $pdo->exec("SET time_zone = '" . $tzOffset . "'");
+        } catch (Throwable $e) {
+            // ignore if fails (e.g., limited privileges)
+        }
     }
 
     private static function ensureSchema(PDO $pdo): void

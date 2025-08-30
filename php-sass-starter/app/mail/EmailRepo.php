@@ -153,6 +153,28 @@ class EmailRepo
         }
     }
 
+    // Log an inbound message (e.g., system notifications)
+    public function logInbound(string $toEmail, string $subject, ?string $html, ?string $text, string $fromEmail, string $fromName = ''): int
+    {
+        $threadId = $this->ensureThread($subject);
+        $tm = EmailDB::t('messages');
+        $st = $this->pdo->prepare("INSERT INTO `{$tm}`(thread_id,direction,status,from_email,from_name,to_json,subject,html_body,text_body,received_at,created_at,updated_at) VALUES(?, 'in', 'received', ?, ?, ?, ?, ?, ?, NOW(), NOW(), NOW())");
+        $toJson = json_encode([$toEmail]);
+        $st->execute([$threadId, $fromEmail, $fromName, $toJson, $subject, $html, $text]);
+        return (int)$this->pdo->lastInsertId();
+    }
+
+    // Log an outbound message (sent copy)
+    public function logOutbound(string $fromEmail, string $fromName, array $to, string $subject, ?string $html, ?string $text, string $status = 'sent'): int
+    {
+        $threadId = $this->ensureThread($subject);
+        $tm = EmailDB::t('messages');
+        $toJson = json_encode(array_values($to));
+        $st = $this->pdo->prepare("INSERT INTO `{$tm}`(thread_id,direction,status,from_email,from_name,to_json,subject,html_body,text_body,sent_at,created_at,updated_at) VALUES(?, 'out', ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NOW())");
+        $st->execute([$threadId, $status, $fromEmail, $fromName, $toJson, $subject, $html, $text]);
+        return (int)$this->pdo->lastInsertId();
+    }
+
     public function ensureThread(string $subject): int
     {
         $tt = EmailDB::t('threads');

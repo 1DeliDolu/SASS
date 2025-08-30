@@ -8,7 +8,7 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 }
 
 // Default timezone (override via APP_TZ in .env)
-$tz = getenv('APP_TZ') ?: 'UTC';
+$tz = getenv('APP_TZ') ?: 'Europe/Berlin';
 @date_default_timezone_set($tz);
 
 // Display errors in dev

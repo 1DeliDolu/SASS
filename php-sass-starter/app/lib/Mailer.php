@@ -88,6 +88,12 @@ class Mailer
         $htmlBody = $msg['html_body'] ?? null;
         $textBody = $msg['text_body'] ?? null;
         $to = $toList[0];
+        // Respect from override in fallback as well
+        $fromOverride = $msg['from_email'] ?? null; $fromNameOverride = $msg['from_name'] ?? null;
+        if ($fromOverride && filter_var($fromOverride, FILTER_VALIDATE_EMAIL)) {
+            $from = $fromOverride;
+            if ($fromNameOverride && is_string($fromNameOverride)) { $fromName = $fromNameOverride; }
+        }
 
         // Build message
         $boundary = 'bnd_' . bin2hex(random_bytes(8));

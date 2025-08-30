@@ -28,6 +28,7 @@ class EmailDB
         ];
         try {
             self::$pdo = new PDO($dsn, $user, $pass, $opts);
+            self::setSessionTimeZone(self::$pdo);
         } catch (PDOException $e) {
             // Fallback to main DB if _mail database missing
             $fallbackDsn = getenv('DB_DSN');
@@ -38,9 +39,27 @@ class EmailDB
                 $fallbackDsn = "mysql:host={$host};dbname={$db};charset={$charset}";
             }
             self::$pdo = new PDO($fallbackDsn, getenv('DB_USER') ?: 'root', getenv('DB_PASS') !== false ? getenv('DB_PASS') : '', $opts);
+            self::setSessionTimeZone(self::$pdo);
         }
         self::ensureSchema(self::$pdo);
         return self::$pdo;
+    }
+
+    private static function setSessionTimeZone(PDO $pdo): void
+    {
+        try {
+            $tzId = getenv('APP_TZ') ?: 'Europe/Berlin';
+            $dt = new DateTime('now', new DateTimeZone($tzId));
+            $offset = $dt->getOffset();
+            $sign = $offset >= 0 ? '+' : '-';
+            $offset = abs($offset);
+            $hh = str_pad((string) intdiv($offset, 3600), 2, '0', STR_PAD_LEFT);
+            $mm = str_pad((string) intdiv($offset % 3600, 60), 2, '0', STR_PAD_LEFT);
+            $tzOffset = "$sign$hh:$mm";
+            $pdo->exec("SET time_zone = '" . $tzOffset . "'");
+        } catch (Throwable $e) {
+            // ignore
+        }
     }
 
     private static function ensureSchema(PDO $pdo): void

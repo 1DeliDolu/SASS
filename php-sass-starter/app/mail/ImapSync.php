@@ -1,46 +1,79 @@
 <?php
+use PhpImap\Mailbox;
+
 class ImapSync
 {
-    public static function run(): void
+    public function syncInbox(?string $onlyToEmail = null, int $limit = 50): int
     {
-        // Requires php-imap/php-imap via Composer; fallback to no-op if not available
-        if (!class_exists('PhpImap\\Mailbox')) {
-            // Log and return
-            @file_put_contents(__DIR__ . '/../../logs/mail.log', '['.date('Y-m-d H:i:s').'] IMAP library not installed; skipping sync' . "\n", FILE_APPEND);
-            return;
-        }
         $host = getenv('IMAP_HOST');
-        $port = getenv('IMAP_PORT') ?: 993;
+        $port = (int)(getenv('IMAP_PORT') ?: 993);
         $enc  = getenv('IMAP_ENCRYPTION') ?: 'ssl';
-        $user = getenv('IMAP_USER') ?: '';
-        $pass = getenv('IMAP_PASS') ?: '';
-        if (!$host || !$user || !$pass) return;
-        $dsn = '{'.$host.':'.$port.'/imap/'.$enc.'}INBOX';
-        $storage = __DIR__ . '/../../storage/imap';
-        @mkdir($storage, 0777, true);
-        $mailbox = new PhpImap\Mailbox($dsn, $user, $pass, $storage, 'UTF-8');
-        $ids = $mailbox->searchMailbox('UNSEEN SINCE "'.date('d-M-Y', strtotime('-7 days')).'"');
-        if (!$ids) return;
-        require_once __DIR__ . '/EmailRepo.php';
-        $repo = new EmailRepo();
-        $tm = EmailDB::t('messages');
-        $tt = EmailDB::t('threads');
-        $ta = EmailDB::t('attachments');
-        foreach ($ids as $id) {
-            $m = $mailbox->getMail($id, false);
-            $subject = $m->subject ?: '(No subject)';
-            $threadId = $repo->ensureThread($subject);
-            $pdo = EmailDB::pdo();
-            $pdo->prepare("INSERT INTO `{$tm}` (thread_id,direction,status,from_email,from_name,to_json,subject,text_body,html_body,received_at,message_id,created_at,updated_at) VALUES(?, 'in','received', ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())")
-                ->execute([$threadId, $m->fromAddress, $m->fromName, json_encode($m->to), $subject, $m->textPlain, $m->textHtml, $m->date, $m->messageId]);
-            $msgId = (int)$pdo->lastInsertId();
-            foreach ($m->getAttachments() as $att) {
-                $path = 'storage/' . uniqid('', true) . '_' . $att->name;
-                @file_put_contents(__DIR__ . '/../../' . $path, $att->getContents());
-                $pdo->prepare("INSERT INTO `{$ta}`(message_id,file_name,mime,size,storage_path,cid) VALUES(?,?,?,?,?,?)")
-                    ->execute([$msgId, $att->name, $att->mimeType, $att->size, $path, $att->contentId]);
-            }
-            $pdo->prepare("UPDATE `{$tt}` SET last_message_at=NOW(), updated_at=NOW() WHERE id=?")->execute([$threadId]);
+        $user = getenv('IMAP_USER');
+        $pass = getenv('IMAP_PASS');
+        if (!$host || !$user || $pass === false) {
+            return 0; // not configured
         }
+        $mailboxPath = sprintf('{%s:%d/%s}INBOX', $host, $port, $enc ?: 'novalidate-cert');
+        $imported = 0;
+        try {
+            if (class_exists('PhpImap\\Mailbox')) {
+                $mb = new Mailbox($mailboxPath, $user, $pass, __DIR__ . '/../../storage/imap', 'UTF-8');
+                $mids = $mb->searchMailbox('UNSEEN');
+                if (!is_array($mids)) $mids = [];
+                $mids = array_slice($mids, 0, max(1, $limit));
+                require_once __DIR__ . '/EmailRepo.php';
+                $repo = new EmailRepo();
+                foreach ($mids as $mid) {
+                    $mail = $mb->getMail($mid);
+                    $toEmail = $onlyToEmail ?: ($mail->to ? array_key_first($mail->to) : ($mail->toString ?? $user));
+                    // Basic filtering by recipient if requested
+                    if ($onlyToEmail && stripos((string)$toEmail, $onlyToEmail) === false) {
+                        continue;
+                    }
+                    $fromEmail = $mail->fromAddress ?: 'unknown@example.com';
+                    $fromName  = $mail->fromName ?: '';
+                    $subject   = $mail->subject ?: '(No subject)';
+                    $html      = $mail->textHtml ?: null;
+                    $text      = $mail->textPlain ?: null;
+                    $repo->logInbound((string)$toEmail, $subject, $html, $text, $fromEmail, $fromName);
+                    $imported++;
+                }
+            } elseif (function_exists('imap_open')) {
+                $inbox = @imap_open($mailboxPath, $user, $pass);
+                if (!$inbox) return 0;
+                $emails = imap_search($inbox, 'UNSEEN') ?: [];
+                $emails = array_slice($emails, 0, max(1, $limit));
+                require_once __DIR__ . '/EmailRepo.php';
+                $repo = new EmailRepo();
+                foreach ($emails as $num) {
+                    $overview = imap_fetch_overview($inbox, $num, 0)[0] ?? null;
+                    $structure = imap_fetchstructure($inbox, $num);
+                    $body = imap_fetchbody($inbox, $num, 1.2);
+                    if ($body === '') $body = imap_fetchbody($inbox, $num, 1);
+                    $html = null; $text = null;
+                    if ($structure && isset($structure->subtype)) {
+                        $sub = strtolower((string)$structure->subtype);
+                        if ($sub === 'html') $html = imap_qprint($body);
+                        else $text = imap_qprint($body);
+                    } else {
+                        $text = imap_qprint($body);
+                    }
+                    $from = $overview->from ?? '';
+                    $subject = $overview->subject ?? '(No subject)';
+                    // crude parsing for from email
+                    if (preg_match('/<([^>]+)>/', $from, $m)) { $fromEmail = $m[1]; $fromName = trim(str_replace($m[0], '', $from)); }
+                    else { $fromEmail = $from; $fromName = ''; }
+                    $toEmail = $onlyToEmail ?: ($user);
+                    if ($onlyToEmail && stripos((string)$toEmail, $onlyToEmail) === false) continue;
+                    $repo->logInbound((string)$toEmail, $subject, $html, $text, (string)$fromEmail, (string)$fromName);
+                    $imported++;
+                }
+                imap_close($inbox);
+            }
+        } catch (Throwable $e) {
+            // swallow errors in sync
+        }
+        return $imported;
     }
 }
+

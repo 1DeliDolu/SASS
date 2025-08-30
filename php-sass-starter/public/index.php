@@ -116,6 +116,17 @@ switch ($action) {
         $data = ['users' => $users, 'active' => 'compose'];
         include __DIR__ . '/../app/views/mail/compose.php';
         break;
+    case 'mail_sync':
+        // Manual IMAP sync trigger; requires login
+        if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+        if (empty($_SESSION['user'])) { header('Location: /index.php?action=login'); exit; }
+        require_once __DIR__ . '/../app/mail/ImapSync.php';
+        $me = $_SESSION['user'];
+        $target = isset($_GET['for']) && filter_var($_GET['for'], FILTER_VALIDATE_EMAIL) ? $_GET['for'] : ($me['mail'] ?? null);
+        $sync = new ImapSync();
+        $sync->syncInbox($target, 50);
+        header('Location: /index.php?action=mail_inbox');
+        exit;
     case 'mail_send':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $repo = new EmailRepo();

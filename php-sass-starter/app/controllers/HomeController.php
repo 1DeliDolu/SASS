@@ -168,7 +168,7 @@ class HomeController
                     // Token üret ve e‑posta gönder
                     require_once __DIR__ . '/../models/PasswordResetModel.php';
                     $pr = new PasswordResetModel();
-                    $rec = $pr->create((int)$user['id'], $mail, 3600);
+                    $rec = $pr->create((int)$user['id'], $mail, 900);
                     $token = $rec['token'];
                     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
                     $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
@@ -176,14 +176,27 @@ class HomeController
                     $subject = 'Parola sıfırlama isteği';
                     $html = '<div style="font-family:Inter,Arial,sans-serif;line-height:1.6;color:#111;">'
                         . '<h2 style="margin:0 0 12px 0;">Parolanızı sıfırlayın</h2>'
-                        . '<p>Bu isteği siz yaptıysanız, aşağıdaki butona tıklayın. Bağlantı 1 saat içinde geçerlidir.</p>'
+                        . '<p>Bu isteği siz yaptıysanız, aşağıdaki butona tıklayın. Bağlantı 15 dakika içinde geçerlidir.</p>'
                         . '<p style="margin:18px 0;"><a href="' . htmlspecialchars($link) . '" style="background:#e67e22;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:700;">Parolayı Sıfırla</a></p>'
                         . '<p>Buton çalışmazsa, bu bağlantıyı kopyalayın:</p>'
                         . '<p style="word-break:break-all"><a href="' . htmlspecialchars($link) . '">' . htmlspecialchars($link) . '</a></p>'
                         . '</div>';
-                    $text = "Parolanızı sıfırlamak için bu bağlantıyı açın (1 saat geçerli):\n" . $link;
+                    $text = "Parolanızı sıfırlamak için bu bağlantıyı açın (15 dakika geçerli):\n" . $link;
                     require_once __DIR__ . '/../lib/Mailer.php';
-                    Mailer::send($mail, $subject, $html, $text);
+                    Mailer::sendMessage([
+                        'to' => [$mail],
+                        'subject' => $subject,
+                        'html_body' => $html,
+                        'text_body' => $text,
+                        'from_email' => 'syss_mvc@sass.de',
+                        'from_name' => 'SASS MVC',
+                    ]);
+                    // Log inbound copy to app mail inbox
+                    require_once __DIR__ . '/../mail/EmailRepo.php';
+                    $repo = new EmailRepo();
+                    $repo->logInbound($mail, $subject, $html, $text, 'syss_mvc@sass.de', 'SASS MVC');
+                    // Log outbound copy to Sent for the sender
+                    $repo->logOutbound('syss_mvc@sass.de', 'SASS MVC', [$mail], $subject, $html, $text, 'sent');
                 }
                 // log hit for throttle
                 $thr->hit('forgot_password:mail', strtolower($mail), $ip ?? '');
