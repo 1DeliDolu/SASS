@@ -68,6 +68,21 @@ class Database
             "  CONSTRAINT `fk_projects_musteri` FOREIGN KEY (`musteri_id`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE\n" .
             ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
+            // password_resets (password reset flow)
+            "CREATE TABLE IF NOT EXISTS `password_resets` (\n" .
+            "  `id` INT NOT NULL AUTO_INCREMENT,\n" .
+            "  `user_id` INT NOT NULL,\n" .
+            "  `email` VARCHAR(180) NOT NULL,\n" .
+            "  `token_hash` CHAR(64) NOT NULL,\n" .
+            "  `expires_at` DATETIME NOT NULL,\n" .
+            "  `used_at` DATETIME NULL,\n" .
+            "  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" .
+            "  PRIMARY KEY (`id`),\n" .
+            "  KEY `idx_pr_user` (`user_id`),\n" .
+            "  KEY `idx_pr_token` (`token_hash`),\n" .
+            "  CONSTRAINT `fk_pr_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE\n" .
+            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
             // project_assignments
             "CREATE TABLE IF NOT EXISTS `project_assignments` (\n" .
             "  `project_id` INT NOT NULL,\n" .
@@ -108,6 +123,18 @@ class Database
             "  KEY `idx_messages_receiver` (`receiver_id`),\n" .
             "  CONSTRAINT `fk_messages_sender` FOREIGN KEY (`sender_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,\n" .
             "  CONSTRAINT `fk_messages_receiver` FOREIGN KEY (`receiver_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE\n" .
+            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+            // throttle (simple rate limiting)
+            "CREATE TABLE IF NOT EXISTS `throttle` (\n" .
+            "  `id` INT NOT NULL AUTO_INCREMENT,\n" .
+            "  `action` VARCHAR(64) NOT NULL,\n" .
+            "  `key` VARCHAR(190) NOT NULL,\n" .
+            "  `ip` VARCHAR(64) NULL,\n" .
+            "  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" .
+            "  PRIMARY KEY (`id`),\n" .
+            "  KEY `idx_thr_action_key_time` (`action`,`key`,`created_at`),\n" .
+            "  KEY `idx_thr_ip_time` (`ip`,`created_at`)\n" .
             ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
             // message_archives (per-user archived conversations)

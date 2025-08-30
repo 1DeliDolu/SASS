@@ -19,6 +19,12 @@ switch ($action) {
     case 'login':
         $controller->login();
         break;
+    case 'forgot_password':
+        $controller->forgotPassword();
+        break;
+    case 'reset_password':
+        $controller->resetPassword();
+        break;
     case 'profile':
         $controller->profile();
         break;
@@ -92,9 +98,12 @@ switch ($action) {
         include __DIR__ . '/../app/views/mail/inbox.php';
         break;
     case 'mail_thread':
+        if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+        if (empty($_SESSION['user'])) { header('Location: /index.php?action=login'); exit; }
+        $me = $_SESSION['user'];
         $repo = new EmailRepo();
         $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-        $data = $repo->getThread($id);
+        $data = $repo->getThread($id, (string)($me['mail'] ?? ''));
         include __DIR__ . '/../app/views/mail/thread.php';
         break;
     case 'mail_compose':

@@ -1,9 +1,9 @@
 @use "sass:color";
 .nav-link:last-child {
-  margin-right: 1.5rem;
+  margin-right: 1rem;
 }
 .nav-link:last-child {
-  margin-left: 1.2rem;
+  margin-left: 1rem;
 }
 // SASS DEĞİŞKENLERİ
 $primary: #2c3e50;
@@ -20,13 +20,19 @@ body {
 
 // Responsive body padding
 @media (min-width: 640px) {
-  body { padding: 0 16px; }
+  body {
+    padding: 0 16px;
+  }
 }
 @media (min-width: 1024px) {
-  body { padding: 0 24px; }
+  body {
+    padding: 0 24px;
+  }
 }
 @media (min-width: 1280px) {
-  body { padding: 0 32px; }
+  body {
+    padding: 0 32px;
+  }
 }
 
 // NAVBAR
@@ -37,66 +43,449 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.2rem 2.5rem 1.2rem 2.5rem;
+  padding: 0.7rem 2.5rem;
   box-shadow: 0 2px 8px rgba(44, 62, 80, 0.07);
-  .search-form {
-    margin-right: 0.8rem;
-  }
-  .search {
-    position: relative;
-    display: flex;
-    align-items: center;
-    background: rgba(255,255,255,0.15);
-    border-radius: 999px;
-    padding: 0.3rem 0.9rem 0.3rem 0.6rem;
-    transition: background 0.2s, box-shadow 0.2s;
-  }
-  .search:hover {
-    background: rgba(255,255,255,0.2);
-  }
-  .search:focus-within {
-    background: rgba(255,255,255,0.25);
-    box-shadow: 0 0 0 3px rgba(255,255,255,0.18);
-  }
-  .search-icon {
-    font-size: 0.95rem;
-    opacity: 0.9;
-    margin-right: 0.35rem;
-  }
-  .search-input {
-    width: 220px;
-    background: transparent;
-    border: none;
-    outline: none;
+  .navbar-left .logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -1px;
     color: #fff;
-    font-size: 0.98rem;
-    ::placeholder {
-      color: rgba(255,255,255,0.85);
+  }
+  .navbar-right {
+    display: flex;
+    gap: 1.2rem;
+  }
+  .nav-link {
+    color: #fff;
+    // LAYOUT
+    .main-layout {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 2.5rem;
+      margin: 2.5rem auto 0 auto;
+      max-width: 1100px;
+      min-height: 70vh;
+    }
+    color: #fff;
+  }
+  // LAYOUT
+  //
+  .main-layout {
+    .main-layout {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 2.5rem;
+      margin: 2.5rem auto 0 auto;
+      max-width: 1100px;
+    }
+
+    .sidebar {
+      width: 210px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(44, 62, 80, 0.1);
+      padding: 2rem 1.5rem 1.5rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-height: 320px;
+      margin-bottom: 2rem;
+    }
+    .sidebar h2 {
+      color: $primary;
+      font-size: 1.15rem;
+      margin-bottom: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .project-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .project-list li {
+      list-style: none;
+    }
+    .project-list li a {
+      color: $primary;
+      text-decoration: none;
+      font-size: 1.04rem;
+      padding: 0.4rem 0.7rem;
+      border-radius: 6px;
+      display: block;
+      transition: background 0.2s, color 0.2s;
+    }
+    .project-list li a:hover {
+      background: $accent;
+      color: #fff;
+    }
+
+    .main-content {
+      flex: 1 1 0%;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(44, 62, 80, 0.1);
+      padding: 2.5rem 2.5rem 2rem 2.5rem;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      margin-top: 0;
+      margin-bottom: 2rem;
+    }
+    .sidebar {
+      .sidebar {
+        width: 210px;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(44, 62, 80, 0.1);
+        padding: 2rem 1.5rem 1.5rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        min-height: 320px;
+      }
+      color: $primary;
+      font-size: 1.2rem;
+      margin-bottom: 1.1rem;
+      font-weight: 700;
+    }
+    .project-list {
+      .sidebar h2 {
+        color: $primary;
+        font-size: 1.15rem;
+        margin-bottom: 1.1rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+      }
+      .project-list li a {
+        color: $primary;
+        text-decoration: none;
+        font-size: 1.05rem;
+        padding: 0.3rem 0.7rem;
+        border-radius: 5px;
+        transition: background 0.2s, color 0.2s;
+      }
+      .project-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .project-list li a {
+        color: $primary;
+        text-decoration: none;
+        font-size: 1.04rem;
+        padding: 0.4rem 0.7rem;
+        border-radius: 6px;
+        display: block;
+        transition: background 0.2s, color 0.2s;
+      }
+      .project-list li a:hover {
+        background: $accent;
+        color: #fff;
+      }
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      font-weight: 800;
+    }
+    .main-content p {
+      font-size: 1.08rem;
+      color: color.adjust($primary, $lightness: -10%);
+      margin-bottom: 0.7rem;
+    }
+    //
+
+    .register-container {
+      max-width: 420px;
+      margin: 4rem auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 32px rgba(44, 62, 80, 0.13);
+      padding: 2.5rem 2.5rem 2rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .register-container h1 {
+      color: $primary;
+      margin-bottom: 2rem;
+      font-size: 2.2rem;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: -1px;
+    }
+
+    .register-form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group label {
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      color: $primary;
+      font-size: 1.05rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border: 1.5px solid color.adjust($primary, $lightness: 40%);
+      border-radius: 8px;
+      font-size: 1.08rem;
+      background: #f7f9fb;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 1px 2px rgba(44, 62, 80, 0.03);
+    }
+
+    .form-group input:focus {
+      border-color: $accent;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.13);
+    }
+
+    .btn-primary {
+      background: linear-gradient(
+        90deg,
+        $accent 60%,
+        color.adjust($accent, $lightness: 10%) 100%
+      );
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.9rem 1.2rem;
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 0.7rem;
+      box-shadow: 0 2px 8px rgba(44, 62, 80, 0.09);
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary:hover {
+      background: color.adjust($accent, $lightness: -10%);
+      box-shadow: 0 4px 16px rgba(44, 62, 80, 0.13);
+    }
+
+    .login-link {
+      margin-top: 1.5rem;
+      font-size: 1.05rem;
+      text-align: center;
+    }
+
+    .login-link a {
+      color: $primary;
+      text-decoration: underline;
+      transition: color 0.2s;
+      font-weight: 600;
+    }
+
+    .login-link a:hover {
+      color: $accent;
+    }
+
+    .register-container h1 {
+      color: $primary;
+      margin-bottom: 1.5rem;
+    }
+
+    .register-form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      color: $primary;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid color.adjust($primary, $lightness: 40%);
+      border-radius: 6px;
+      font-size: 1rem;
+      background: #f7f9fb;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      border-color: $accent;
+      outline: none;
+    }
+
+    .btn-primary {
+      background: $accent;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.7rem 1.2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      box-shadow: 0 1px 4px rgba(44, 62, 80, 0.07);
+      transition: background 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: color.adjust($accent, $lightness: -8%);
+    }
+
+    .login-link {
+      margin-top: 1.2rem;
+      font-size: 0.97rem;
+    }
+
+    .login-link a {
+      color: $primary;
+      text-decoration: underline;
+      transition: color 0.2s;
+    }
+
+    .login-link a:hover {
+      color: $accent;
     }
   }
 }
-.navbar-left .logo {
-  font-size: 2rem;
+
+// NAVBAR MODERN BOOTSTRAP GÖRÜNÜMÜ
+.navbar {
+  background: $primary;
+  color: #fff;
+  padding: 0.5rem 2rem;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.07);
+}
+.navbar .container-fluid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+.navbar-brand {
+  color: #fff !important;
+  font-size: 1.5rem;
   font-weight: 800;
   letter-spacing: -1px;
-  color: #fff;
+  margin-right: 2rem;
+  padding: 0;
 }
-.navbar-right {
+.navbar-toggler {
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 1.3rem;
+  margin-left: 0.5rem;
+}
+.navbar-nav {
   display: flex;
+  flex-direction: row;
+  align-items: center;
   gap: 1.2rem;
+  margin: 0;
+  padding: 0;
 }
-.nav-link {
-  color: #fff;
-  text-decoration: none;
-  font-weight: 600;
+.navbar-nav .nav-item {
+  display: block;
+  margin: 0;
+}
+.navbar-nav .nav-link {
+  color: #fff !important;
+  font-weight: 500;
   font-size: 1.08rem;
-  padding: 0.5rem 1.2rem;
+  padding: 0.5rem 1rem;
   border-radius: 6px;
+  background: none;
+  transition: background 0.2s, color 0.2s;
+  margin: 0;
+}
+.navbar-nav .nav-link.active,
+.navbar-nav .nav-link:hover {
+  background: $accent;
+  color: #fff !important;
+}
+.navbar-collapse {
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.5rem;
+}
+.navbar-nav {
+  flex: 0 1 auto;
+  margin: 0;
+  padding: 0;
+}
+form[role="search"] {
+  flex-shrink: 0;
+  margin: 0;
+}
+form[role="search"] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+.form-control[type="search"] {
+  min-width: 160px;
+  max-width: 220px;
+  border-radius: 6px;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  font-size: 1rem;
+}
+.btn-outline-success {
+  border: 1.5px solid #fff;
+  color: #fff;
+  background: transparent;
+  border-radius: 6px;
+  padding: 0.4rem 1.1rem;
+  font-weight: 600;
   transition: background 0.2s, color 0.2s;
 }
-.nav-link:hover {
+.btn-outline-success:hover {
   background: $accent;
   color: #fff;
+  border-color: $accent;
+}
+@media (max-width: 991px) {
+  .navbar-nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .navbar-collapse {
+    margin-top: 1rem;
+  }
 }
 
 // LAYOUT
@@ -156,7 +545,9 @@ body {
   background: $accent;
   color: #fff;
 }
-.project-list li.is-hidden { display: none; }
+.project-list li.is-hidden {
+  display: none;
+}
 .project-list li.active > a {
   background: $accent;
   color: #fff;
@@ -197,42 +588,68 @@ mark.hl {
   background: #fff;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(44,62,80,0.08);
-  th, td {
-    border: 1px solid rgba(44,62,80,0.12);
+  box-shadow: 0 2px 10px rgba(44, 62, 80, 0.08);
+  th,
+  td {
+    border: 1px solid rgba(44, 62, 80, 0.12);
     padding: 0.7rem 0.9rem;
     text-align: left;
   }
   thead th {
-    background: rgba(44,62,80,0.06);
+    background: rgba(44, 62, 80, 0.06);
     font-weight: 800;
   }
   tbody tr:nth-child(odd) {
-    background: rgba(44,62,80,0.02);
+    background: rgba(44, 62, 80, 0.02);
   }
 }
 
 // Apply base to app tables and docs tables
-.table { @extend %table-base; }
-.doc-article table { @extend %table-base; }
+.table {
+  @extend %table-base;
+}
+.doc-article table {
+  @extend %table-base;
+}
 
 // Doc TOC
 .doc-toc {
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 1px 6px rgba(44,62,80,0.08);
+  box-shadow: 0 1px 6px rgba(44, 62, 80, 0.08);
   padding: 1rem 1.2rem;
   border-left: 4px solid $accent;
   margin-bottom: 1rem;
 }
-.doc-toc-title { font-weight: 800; margin-bottom: 0.6rem; color: $primary; }
-.doc-toc ul { list-style: none; padding-left: 0; margin: 0; }
-.doc-toc li { margin: 0.2rem 0; }
-.doc-toc li.l2 { margin-left: 0.5rem; }
-.doc-toc li.l3 { margin-left: 1rem; }
-.doc-toc li.l4 { margin-left: 1.25rem; }
-.doc-toc a { text-decoration: none; color: $primary; }
-.doc-toc a:hover { text-decoration: underline; }
+.doc-toc-title {
+  font-weight: 800;
+  margin-bottom: 0.6rem;
+  color: $primary;
+}
+.doc-toc ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+.doc-toc li {
+  margin: 0.2rem 0;
+}
+.doc-toc li.l2 {
+  margin-left: 0.5rem;
+}
+.doc-toc li.l3 {
+  margin-left: 1rem;
+}
+.doc-toc li.l4 {
+  margin-left: 1.25rem;
+}
+.doc-toc a {
+  text-decoration: none;
+  color: $primary;
+}
+.doc-toc a:hover {
+  text-decoration: underline;
+}
 
 // Two-column doc layout with sticky TOC
 .doc-detail {
@@ -241,8 +658,16 @@ mark.hl {
   gap: 1.5rem;
 }
 @media (min-width: 1024px) {
-  .doc-detail { grid-template-columns: 280px 1fr; align-items: start; }
-  .doc-toc { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; }
+  .doc-detail {
+    grid-template-columns: 280px 1fr;
+    align-items: start;
+  }
+  .doc-toc {
+    position: sticky;
+    top: 16px;
+    max-height: calc(100vh - 32px);
+    overflow: auto;
+  }
 }
 
 // Breadcrumbs
@@ -273,17 +698,27 @@ $red: #ef4444;
 
 .milestone-badge {
   display: inline-block;
-  padding: .15rem .45rem;
+  padding: 0.15rem 0.45rem;
   border-radius: 6px;
   font-weight: 700;
-  font-size: .85rem;
+  font-size: 0.85rem;
   color: #fff;
-  &.green  { background: $green; }
-  &.yellow { background: $yellow; }
-  &.orange { background: $orange; }
-  &.red    { background: $red; }
+  &.green {
+    background: $green;
+  }
+  &.yellow {
+    background: $yellow;
+  }
+  &.orange {
+    background: $orange;
+  }
+  &.red {
+    background: $red;
+  }
 }
-.muted { opacity: .6; }
+.muted {
+  opacity: 0.6;
+}
 
 // Admin project list action buttons
 .btn-action {
@@ -291,30 +726,47 @@ $red: #ef4444;
   padding: 0.38rem 0.75rem;
   border-radius: 8px;
   font-weight: 700;
-  font-size: .92rem;
+  font-size: 0.92rem;
   line-height: 1;
   min-width: 92px;
   text-align: center;
   border: none;
   cursor: pointer;
 }
-a.btn-action { text-decoration: none; }
+a.btn-action {
+  text-decoration: none;
+}
 .btn-edit {
   background: #0ea5e9;
   color: #fff;
   padding: 0.33rem 0.65rem; // a bit tighter for Edit
   min-width: 80px;
-  &:hover { background: #0284c7; color:#fff; }
+  &:hover {
+    background: #0284c7;
+    color: #fff;
+  }
 }
 
 // Responsive table wrapper and sticky header option
-.table-wrap { width: 100%; overflow: auto; }
-.table-sticky thead th { position: sticky; top: 0; z-index: 1; }
+.table-wrap {
+  width: 100%;
+  overflow: auto;
+}
+.table-sticky thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
 
 // Table row hover + compact density option
-.table tbody tr:hover { background: rgba(44,62,80,0.06); }
+.table tbody tr:hover {
+  background: rgba(44, 62, 80, 0.06);
+}
 .table-compact {
-  th, td { padding: 0.5rem 0.7rem; }
+  th,
+  td {
+    padding: 0.5rem 0.7rem;
+  }
 }
 
 // Truncated text helper (for long emails)
@@ -330,7 +782,9 @@ form[action*="admin_project_delete"] button {
   @extend .btn-action;
   background: $red;
   color: #fff;
-  &:hover { background: #dc2626; }
+  &:hover {
+    background: #dc2626;
+  }
 }
 
 // MAIN CONTENT
@@ -414,7 +868,11 @@ form[action*="admin_project_delete"] button {
   box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.13);
 }
 .btn-primary {
-  background: linear-gradient(90deg, $accent 60%, color.adjust($accent, $lightness: 10%) 100%);
+  background: linear-gradient(
+    90deg,
+    $accent 60%,
+    color.adjust($accent, $lightness: 10%) 100%
+  );
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -793,3 +1251,261 @@ $base-font: "Helvetica Neue", Arial, sans-serif;
     }
   }
 }
+
+// ------------------------------------------------------------
+// Home page layout overrides (moved from inline styles)
+// ------------------------------------------------------------
+.main-layout {
+  gap: 48px;
+  margin: 48px auto 0 auto;
+  max-width: 1400px;
+}
+
+.sidebar {
+  min-width: 260px;
+  max-width: 320px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(44, 62, 80, 0.08);
+  padding: 36px 32px 32px 32px;
+  margin: 0;
+}
+
+.sidebar h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.project-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.project-list li {
+  margin-bottom: 18px;
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+
+.project-list li a {
+  color: #223;
+  text-decoration: none;
+  padding: 4px 0;
+  display: block;
+  border-radius: 6px;
+}
+
+.project-list li.active > a {
+  background: #f1f5f9;
+  font-weight: 700;
+  color: #223;
+}
+
+.main-content {
+  flex: 1 1 0%;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(44, 62, 80, 0.08);
+  padding: 48px 56px;
+  min-width: 400px;
+}
+
+.main-content h1 {
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin-bottom: 32px;
+  letter-spacing: -1px;
+  color: #223;
+}
+
+.main-content p:first-of-type {
+  font-size: 1.25rem;
+  color: #222;
+  margin-bottom: 18px;
+  font-weight: 500;
+}
+
+.main-content p:last-of-type {
+  font-size: 1.15rem;
+  color: #374151;
+}
+
+// ------------------------------------------------------------
+// Auth: Forgot password styles
+// ------------------------------------------------------------
+.forgot-container {
+  max-width: 480px;
+}
+.auth-status {
+  margin: 0 0 1rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.98rem;
+}
+.auth-status.success {
+  background: rgba(34, 197, 94, 0.12);
+  color: #166534;
+  box-shadow: 0 1px 6px rgba(22, 101, 52, 0.08);
+}
+.auth-status.error {
+  background: rgba(239, 68, 68, 0.12);
+  color: #7f1d1d;
+  box-shadow: 0 1px 6px rgba(127, 29, 29, 0.08);
+}
+.forgot-help {
+  margin-bottom: 0.8rem;
+  color: color.adjust($primary, $lightness: 8%);
+}
+
+// ------------------------------------------------------------
+// Navbar flexible layout (modern, responsive, edge-to-edge)
+// ------------------------------------------------------------
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: clamp(0.8rem, 1.2vw, 1.2rem) clamp(1rem, 3vw, 2.5rem);
+  column-gap: clamp(0.6rem, 2vw, 1.5rem);
+  flex-wrap: wrap;
+}
+.navbar-left,
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+.navbar-left {
+  flex: 1 1 200px;
+  min-width: 160px;
+}
+.navbar-right {
+  flex: 1 1 320px;
+  justify-content: flex-end;
+  gap: clamp(0.5rem, 2vw, 1.2rem);
+  flex-wrap: wrap;
+}
+.navbar .search-input {
+  width: clamp(140px, 24vw, 260px);
+}
+// Hamburger button
+.navbar-toggle {
+  display: none;
+  margin-left: 0.8rem;
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  border-radius: 10px;
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+}
+.navbar-toggle .bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #fff;
+  border-radius: 2px;
+  margin: 4px 0;
+}
+// Off-canvas drawer + overlay for mobile
+.navbar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+body.nav-open .navbar-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+  .navbar-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .navbar-right {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: min(80vw, 360px);
+    background: $primary;
+    box-shadow: -8px 0 24px rgba(0, 0, 0, 0.25);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.8rem;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    z-index: 40;
+  }
+  .navbar.is-open .navbar-right {
+    transform: translateX(0);
+  }
+  .navbar .search {
+    flex: 0 0 auto;
+    background: rgba(255, 255, 255, 0.18);
+  }
+  .navbar .search-input {
+    width: 100%;
+  }
+  .nav-link {
+    padding: 0.7rem 0.9rem;
+    font-size: 1.05rem;
+  }
+}
+
+// Prevent background scroll when drawer open
+body.nav-open {
+  overflow: hidden;
+}
+@media (max-width: 640px) {
+  .navbar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .nav-link {
+    padding: 0.45rem 0.8rem;
+    font-size: 1rem;
+  }
+}
+
+// New navbar styles
+.navbar-nav.flex-row {
+  flex-direction: row !important;
+  gap: 18px;
+}
+.navbar-nav.flex-row .nav-item {
+  display: inline-block;
+}
+.navbar-nav .nav-link {
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.08rem;
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+.navbar-nav .nav-link.active,
+.navbar-nav .nav-link:hover {
+  background: $accent;
+  color: #fff;
+}
+@media (max-width: 991px) {
+  .navbar-nav.flex-row {
+    flex-direction: column !important;
+    gap: 0.5rem;
+  }
+  .navbar-nav.flex-row .nav-item {
+    display: block;
+  }
+}
+
+// ------------------------------------------------------------
+// Bootstrap custom property'leri kaldırıldı, undefined variable hatası giderildi.
+// ------------------------------------------------------------

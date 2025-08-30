@@ -121,6 +121,147 @@ class HomeController
         include __DIR__ . '/../views/login.php';
     }
 
+    public function forgotPassword()
+    {
+        $data = ['title' => 'Passwort zurücksetzen'];
+        $status = null;
+        $error = null;
+        // Prepare CSRF token
+        require_once __DIR__ . '/../lib/Csrf.php';
+        $data['csrf'] = Csrf::token('forgot');
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $tok = $_POST['csrf'] ?? '';
+            if (!Csrf::validate('forgot', $tok)) {
+                $error = 'Geçersiz oturum anahtarı. Lütfen tekrar deneyin.';
+                $data['error'] = $error;
+                include __DIR__ . '/../views/forgot-password.php';
+                return;
+            }
+            // Optional: reCAPTCHA
+            require_once __DIR__ . '/../lib/Captcha.php';
+            if (!Captcha::verify($_POST['g-recaptcha-response'] ?? null, $_SERVER['REMOTE_ADDR'] ?? null)) {
+                $error = 'Doğrulama başarısız. Lütfen tekrar deneyin.';
+                $data['error'] = $error;
+                include __DIR__ . '/../views/forgot-password.php';
+                return;
+            }
+            // Rate limit
+            require_once __DIR__ . '/../models/ThrottleModel.php';
+            $thr = new ThrottleModel();
+            $mail = isset($_POST['mail']) ? trim((string)$_POST['mail']) : '';
+            if ($mail === '' || !filter_var($mail, FILTER_VALIDATE_EMAIL)) {
+                $error = 'Lütfen geçerli bir e‑posta adresi girin.';
+            } else {
+                $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+                if ($thr->tooMany('forgot_password:ip', $ip ?: 'none', 10, 3600) || $thr->tooMany('forgot_password:mail', strtolower($mail), 5, 3600)) {
+                    // still log hit but return generic
+                    $thr->hit('forgot_password:blocked', strtolower($mail), $ip);
+                    $status = 'Eğer bu e‑posta sistemimizde kayıtlıysa, sıfırlama bağlantısı gönderildi.';
+                    $data['status'] = $status;
+                    include __DIR__ . '/../views/forgot-password.php';
+                    return;
+                }
+                require_once __DIR__ . '/../models/UserModel.php';
+                $um = new UserModel();
+                $user = $um->getUserByMail($mail);
+                if ($user) {
+                    // Token üret ve e‑posta gönder
+                    require_once __DIR__ . '/../models/PasswordResetModel.php';
+                    $pr = new PasswordResetModel();
+                    $rec = $pr->create((int)$user['id'], $mail, 3600);
+                    $token = $rec['token'];
+                    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+                    $link = $scheme . '://' . $host . '/index.php?action=reset_password&token=' . urlencode($token);
+                    $subject = 'Parola sıfırlama isteği';
+                    $html = '<div style="font-family:Inter,Arial,sans-serif;line-height:1.6;color:#111;">'
+                        . '<h2 style="margin:0 0 12px 0;">Parolanızı sıfırlayın</h2>'
+                        . '<p>Bu isteği siz yaptıysanız, aşağıdaki butona tıklayın. Bağlantı 1 saat içinde geçerlidir.</p>'
+                        . '<p style="margin:18px 0;"><a href="' . htmlspecialchars($link) . '" style="background:#e67e22;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:700;">Parolayı Sıfırla</a></p>'
+                        . '<p>Buton çalışmazsa, bu bağlantıyı kopyalayın:</p>'
+                        . '<p style="word-break:break-all"><a href="' . htmlspecialchars($link) . '">' . htmlspecialchars($link) . '</a></p>'
+                        . '</div>';
+                    $text = "Parolanızı sıfırlamak için bu bağlantıyı açın (1 saat geçerli):\n" . $link;
+                    require_once __DIR__ . '/../lib/Mailer.php';
+                    Mailer::send($mail, $subject, $html, $text);
+                }
+                // log hit for throttle
+                $thr->hit('forgot_password:mail', strtolower($mail), $ip ?? '');
+                if (!empty($ip)) $thr->hit('forgot_password:ip', $ip, $ip);
+                // Her durumda aynı mesaj (bilgi sızıntısını engellemek için)
+                $status = 'Eğer bu e‑posta sistemimizde kayıtlıysa, sıfırlama bağlantısı gönderildi.';
+            }
+        }
+        $data['status'] = $status;
+        $data['error'] = $error;
+        // reCAPTCHA site-key for view
+        require_once __DIR__ . '/../lib/Captcha.php';
+        $data['recaptcha_site_key'] = Captcha::siteKey();
+        include __DIR__ . '/../views/forgot-password.php';
+    }
+
+    public function resetPassword()
+    {
+        $data = ['title' => 'Yeni parola belirle'];
+        $token = isset($_REQUEST['token']) ? trim((string)$_REQUEST['token']) : '';
+        $error = null;
+        $status = null;
+        $valid = false;
+        $resetRow = null;
+        if ($token !== '') {
+            require_once __DIR__ . '/../models/PasswordResetModel.php';
+            $pr = new PasswordResetModel();
+            $resetRow = $pr->findValidByToken($token);
+            $valid = $resetRow !== null;
+        }
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // CSRF check
+            require_once __DIR__ . '/../lib/Csrf.php';
+            $tok = $_POST['csrf'] ?? '';
+            if (!Csrf::validate('reset', $tok)) {
+                $error = 'Geçersiz oturum anahtarı. Lütfen tekrar deneyin.';
+            } else {
+            $pwd1 = $_POST['sifre1'] ?? '';
+            $pwd2 = $_POST['sifre2'] ?? '';
+            if (!$valid) {
+                $error = 'Geçersiz veya süresi dolmuş bağlantı.';
+            } elseif ($pwd1 !== $pwd2) {
+                $error = 'Şifreler eşleşmiyor.';
+            } else {
+                $pwdError = $this->validatePassword($pwd1);
+                if ($pwdError) {
+                    $error = $pwdError;
+                } else {
+                    // Update password and mark token used
+                    require_once __DIR__ . '/../models/UserModel.php';
+                    $um = new UserModel();
+                    $userId = (int)($resetRow['user_id'] ?? 0);
+                    $user = $um->getUser($userId);
+                    if (!$user) {
+                        $error = 'Kullanıcı bulunamadı.';
+                    } else {
+                        $um->updateUserFields($userId, $user['adi'], $user['soyadi'], $user['mail'], $pwd1);
+                        $pr->markUsed((int)$resetRow['id']);
+                        // güvenlik: diğer aktif tokenleri de iptal et
+                        $pr->invalidateAllForUser($userId);
+                        $status = 'Parolanız güncellendi. Giriş yapabilirsiniz.';
+                        // Token artık geçersiz sayılmalı
+                        $valid = false;
+                    }
+                }
+            }
+            }
+        }
+        // Prepare CSRF token for view form
+        require_once __DIR__ . '/../lib/Csrf.php';
+        $data['csrf'] = Csrf::token('reset');
+        $data['token'] = $token;
+        $data['valid'] = $valid;
+        $data['status'] = $status;
+        $data['error'] = $error;
+        include __DIR__ . '/../views/reset-password.php';
+    }
+
     private function findUserByMail($userModel, $mail)
     {
         $users = $userModel->getAllUsers();

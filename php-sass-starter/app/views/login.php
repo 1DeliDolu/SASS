@@ -21,6 +21,10 @@
                 </div>
                 <button class="btn-primary" type="submit">Anmelden</button>
             </form>
+            <!--sifreyi unuttum linki-->
+            <p class="login-link">
+                <a href="/index.php?action=forgot_password">Passwort vergessen?</a>
+            </p>
             <p class="login-link">
                 <a href="/index.php?action=register">Noch kein Konto? Registrieren</a>
             </p>
