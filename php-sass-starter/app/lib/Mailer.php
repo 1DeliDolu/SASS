@@ -56,7 +56,12 @@ class Mailer
                 $m->Host = $host; $m->Port = $port;
                 if ($secure) { $m->SMTPSecure = $secure; }
                 if ($user !== '') { $m->SMTPAuth = true; $m->Username = $user; $m->Password = $pass; }
-                $m->setFrom($from, $fromName);
+                $fromOverride = $msg['from_email'] ?? null; $fromNameOverride = $msg['from_name'] ?? null;
+                if ($fromOverride && filter_var($fromOverride, FILTER_VALIDATE_EMAIL)) {
+                    $m->setFrom($fromOverride, $fromNameOverride ?: $fromName);
+                } else {
+                    $m->setFrom($from, $fromName);
+                }
                 foreach ($toList as $addr) { $m->addAddress($addr); }
                 foreach ($ccList as $addr) { $m->addCC($addr); }
                 foreach ($bccList as $addr) { $m->addBCC($addr); }

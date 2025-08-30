@@ -36,19 +36,60 @@ switch ($action) {
         break;
     // Mail module (FEHLER.md)
     case 'mail_inbox':
+        if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+        if (empty($_SESSION['user'])) { header('Location: /index.php?action=login'); exit; }
+        $me = $_SESSION['user'];
         $repo = new EmailRepo();
-        $data = $repo->listInbox();
-        include __DIR__ . '/../app/views/mail/layout.php';
+        $list = $repo->listInbox((string)($me['mail'] ?? ''));
+        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        $msgId = isset($_GET['msg']) ? (int)$_GET['msg'] : 0;
+        $thread = $id ? $repo->getThread($id, (string)($me['mail'] ?? '')) : ['thread'=>null,'messages'=>[]];
+        $data = [
+            'active' => 'inbox',
+            'messages' => $list['messages'] ?? [],
+            'thread' => $thread['thread'] ?? null,
+            'threadMessages' => $thread['messages'] ?? [],
+            'selectedMsgId' => $msgId,
+        ];
+        include __DIR__ . '/../app/views/mail/inbox.php';
         break;
     case 'mail_sent':
+        if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+        if (empty($_SESSION['user'])) { header('Location: /index.php?action=login'); exit; }
+        $me = $_SESSION['user'];
         $repo = new EmailRepo();
-        $data = $repo->listSent();
-        include __DIR__ . '/../app/views/mail/layout.php';
+        $list = $repo->listSent((string)($me['mail'] ?? ''));
+        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        $msgId = isset($_GET['msg']) ? (int)$_GET['msg'] : 0;
+        $thread = $id ? $repo->getThread($id, (string)($me['mail'] ?? '')) : ['thread'=>null,'messages'=>[]];
+        $data = [
+            'active' => 'sent',
+            'messages' => $list['messages'] ?? [],
+            'thread' => $thread['thread'] ?? null,
+            'threadMessages' => $thread['messages'] ?? [],
+            'selectedMsgId' => $msgId,
+        ];
+        include __DIR__ . '/../app/views/mail/inbox.php';
         break;
     case 'mail_scheduled':
+        if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+        if (empty($_SESSION['user'])) { header('Location: /index.php?action=login'); exit; }
+        $me = $_SESSION['user'];
         $repo = new EmailRepo();
-        $data = $repo->listScheduled();
-        include __DIR__ . '/../app/views/mail/layout.php';
+        $date = isset($_GET['date']) ? preg_replace('/[^0-9\-]/','', $_GET['date']) : null;
+        $list = $repo->listScheduled((string)($me['mail'] ?? ''), $date);
+        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        $msgId = isset($_GET['msg']) ? (int)$_GET['msg'] : 0;
+        $thread = $id ? $repo->getThread($id, (string)($me['mail'] ?? '')) : ['thread'=>null,'messages'=>[]];
+        $data = [
+            'active' => 'scheduled',
+            'messages' => $list['messages'] ?? [],
+            'thread' => $thread['thread'] ?? null,
+            'threadMessages' => $thread['messages'] ?? [],
+            'selectedDate' => $date,
+            'selectedMsgId' => $msgId,
+        ];
+        include __DIR__ . '/../app/views/mail/inbox.php';
         break;
     case 'mail_thread':
         $repo = new EmailRepo();
@@ -57,11 +98,13 @@ switch ($action) {
         include __DIR__ . '/../app/views/mail/thread.php';
         break;
     case 'mail_compose':
-        // Provide user emails to compose view for dropdown selection
+        // Provide user emails to compose view for dropdown selection and show mail sidebar
+        if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+        if (empty($_SESSION['user'])) { header('Location: /index.php?action=login'); exit; }
         require_once __DIR__ . '/../app/models/UserModel.php';
         $um = new UserModel();
         $users = $um->getAllUsers();
-        $data = ['users' => $users];
+        $data = ['users' => $users, 'active' => 'compose'];
         include __DIR__ . '/../app/views/mail/compose.php';
         break;
     case 'mail_send':

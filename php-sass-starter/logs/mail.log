@@ -51,3 +51,12 @@ merhaba
 [2025-08-30 06:40:04] [DRY-RUN][PHPMailer] To=mustafa.ozdemir1408@gmail.com; Subject=(No subject)
 [2025-08-30 06:49:17] [DRY-RUN][PHPMailer] To=calisan2@example.com; Subject=Projeye atandınız: IOS_App
 [2025-08-30 06:49:43] [DRY-RUN][PHPMailer] To=musteri2@example.com; Subject=Milestone eklendi: Test
+[2025-08-30 07:09:18] [DRY-RUN][PHPMailer] To=mustafa.ozdemir1408@gmail.com; Subject=demi
+[2025-08-30 07:18:15] [DRY-RUN][PHPMailer] To=e@gmail.de; Subject=dcs
+[2025-08-30 07:19:12] [DRY-RUN][PHPMailer] To=mustafa.ozdemir1408@gmail.com; Subject=fva
+[2025-08-30 07:27:14] [DRY-RUN][PHPMailer] To=mustafa.ozdemir1408@gmail.com; Subject=Re: demi
+[2025-08-30 07:27:42] [DRY-RUN][PHPMailer] To=e@gmail.de; Subject=Re: dcs
+[2025-08-30 07:28:48] [DRY-RUN][PHPMailer] To=mustafa.ozdemir1408@gmail.com; Subject=Fwd: demi
+[2025-08-30 07:44:59] No valid recipients
+[2025-08-30 07:45:33] [DRY-RUN][PHPMailer] To=mustafa.ozdemir1408@gmail.com; Subject=Re: son deneme 
+[2025-08-30 07:46:34] [DRY-RUN][PHPMailer] To=musteri2@example.com; Subject=zrj

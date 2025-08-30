@@ -157,6 +157,10 @@ Screenshots
 ### Auth-required 
 ![Zugriff erforderlich](public/img/auth-required.png)
 
+### Mail
+
+![mail](public/img/mail.png)
+
 Hinweis: Legen Sie die Screenshots unter `public/img/` ab; sie werden automatisch über die obigen Pfade geladen.
 
 Verzeichnisstruktur (Übersicht)

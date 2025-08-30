@@ -9,28 +9,52 @@ class EmailRepo
         $this->pdo = EmailDB::pdo();
     }
 
-    public function listInbox(): array
+    public function listInbox(string $userEmail): array
     {
         $t = EmailDB::t('messages');
-        return ['messages' => $this->q("SELECT * FROM `{$t}` WHERE direction='in' AND status='received' ORDER BY COALESCE(received_at,created_at) DESC LIMIT 100")];
+        // Gelen: alıcı listesinde benim mailim olacak ve gönderen ben olmayacağım.
+        $sql = "SELECT * FROM `{$t}` WHERE ("
+             . " JSON_CONTAINS(COALESCE(to_json,'[]'), JSON_QUOTE(?))"
+             . " OR JSON_CONTAINS(COALESCE(cc_json,'[]'), JSON_QUOTE(?))"
+             . " OR JSON_CONTAINS(COALESCE(bcc_json,'[]'), JSON_QUOTE(?))"
+             . ") AND from_email IS NOT NULL AND from_email <> ?"
+             . " ORDER BY COALESCE(received_at,created_at) DESC LIMIT 200";
+        $m = [$userEmail, $userEmail, $userEmail, $userEmail];
+        return ['messages' => $this->q($sql, $m)];
     }
 
-    public function listSent(): array
+    public function listSent(string $userEmail): array
     {
         $t = EmailDB::t('messages');
-        return ['messages' => $this->q("SELECT * FROM `{$t}` WHERE direction='out' AND status='sent' ORDER BY COALESCE(sent_at,created_at) DESC LIMIT 100")];
+        // Gönderilmiş: sadece gönderen benim olduğum tüm çıkışlar (durum kısıtı olmadan göster)
+        $sql = "SELECT * FROM `{$t}` WHERE from_email = ? ORDER BY COALESCE(sent_at,created_at) DESC LIMIT 200";
+        return ['messages' => $this->q($sql, [$userEmail])];
     }
 
-    public function listScheduled(): array
+    public function listScheduled(string $userEmail, ?string $dateYmd = null): array
     {
         $t = EmailDB::t('messages');
-        return ['messages' => $this->q("SELECT * FROM `{$t}` WHERE status='scheduled' ORDER BY scheduled_at ASC LIMIT 100")];
+        // Zamanlı: sadece benim oluşturduğum planlı çıkışlar (from_email = ben)
+        if ($dateYmd && preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateYmd)) {
+            $sql = "SELECT * FROM `{$t}` WHERE status='scheduled' AND from_email=? AND DATE(scheduled_at)=? ORDER BY scheduled_at ASC LIMIT 200";
+            return ['messages' => $this->q($sql, [$userEmail, $dateYmd])];
+        }
+        $sql = "SELECT * FROM `{$t}` WHERE status='scheduled' AND from_email=? ORDER BY scheduled_at ASC LIMIT 200";
+        return ['messages' => $this->q($sql, [$userEmail])];
     }
 
-    public function getThread(int $threadId): array
+    public function getThread(int $threadId, string $userEmail): array
     {
         $tt = EmailDB::t('threads');
         $tm = EmailDB::t('messages');
+        // Authorize: ensure user participates in this thread
+        $auth = $this->q1(
+            "SELECT 1 FROM `{$tm}` WHERE thread_id=? AND (from_email=? OR JSON_CONTAINS(COALESCE(to_json,'[]'), JSON_QUOTE(?)) OR JSON_CONTAINS(COALESCE(cc_json,'[]'), JSON_QUOTE(?)) OR JSON_CONTAINS(COALESCE(bcc_json,'[]'), JSON_QUOTE(?))) LIMIT 1",
+            [$threadId, $userEmail, $userEmail, $userEmail, $userEmail]
+        );
+        if (!$auth) {
+            return ['thread' => null, 'messages' => []];
+        }
         $t = $this->q1("SELECT * FROM `{$tt}` WHERE id=?", [$threadId]);
         $msgs = $this->q("SELECT * FROM `{$tm}` WHERE thread_id=? ORDER BY created_at ASC", [$threadId]);
         return ['thread' => $t, 'messages' => $msgs];
@@ -44,11 +68,19 @@ class EmailRepo
         $subject = $post['subject'] ?? '(No subject)';
         $html = $post['html_body'] ?? null; $text = $post['text_body'] ?? null;
         $scheduled_at = !empty($post['scheduled_at']) ? date('Y-m-d H:i:s', strtotime($post['scheduled_at'])) : null;
+        // resolve sender from session if available
+        $fromEmail = getenv('SMTP_FROM') ?: 'no-reply@example.com';
+        $fromName  = getenv('SMTP_FROM_NAME') ?: 'App Mailer';
+        if (session_status() !== PHP_SESSION_ACTIVE) { @session_start(); }
+        if (!empty($_SESSION['user']['mail'])) {
+            $fromEmail = $_SESSION['user']['mail'];
+            $fromName = trim(($_SESSION['user']['adi'] ?? '') . ' ' . ($_SESSION['user']['soyadi'] ?? '')) ?: $fromName;
+        }
 
         $threadId = $this->ensureThread($subject);
         $tm = EmailDB::t('messages');
-        $st = $this->pdo->prepare("INSERT INTO `{$tm}`(thread_id,direction,status,to_json,cc_json,bcc_json,subject,html_body,text_body,scheduled_at,created_at,updated_at) VALUES(?, 'out', ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())");
-        $st->execute([$threadId, $scheduled_at ? 'scheduled' : 'queued', json_encode($to), json_encode($cc), json_encode($bcc), $subject, $html, $text, $scheduled_at]);
+        $st = $this->pdo->prepare("INSERT INTO `{$tm}`(thread_id,direction,status,from_email,from_name,to_json,cc_json,bcc_json,subject,html_body,text_body,scheduled_at,created_at,updated_at) VALUES(?, 'out', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())");
+        $st->execute([$threadId, $scheduled_at ? 'scheduled' : 'queued', $fromEmail, $fromName, json_encode($to), json_encode($cc), json_encode($bcc), $subject, $html, $text, $scheduled_at]);
         $msgId = (int)$this->pdo->lastInsertId();
 
         if (!empty($files['attachments']['name'][0])) {
@@ -96,6 +128,8 @@ class EmailRepo
                 'to' => $to,
                 'cc' => $cc,
                 'bcc' => $bcc,
+                'from_email' => $msg['from_email'] ?? null,
+                'from_name' => $msg['from_name'] ?? null,
                 'subject' => $subject,
                 'html_body' => $html,
                 'text_body' => $text,
