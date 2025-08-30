@@ -94,6 +94,31 @@ class Database
             "  KEY `idx_pm_due` (`due_date`),\n" .
             "  CONSTRAINT `fk_pm_project` FOREIGN KEY (`project_id`) REFERENCES `projects`(`id`) ON DELETE CASCADE ON UPDATE CASCADE\n" .
             ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+            // messages (user-to-user messaging)
+            "CREATE TABLE IF NOT EXISTS `messages` (\n" .
+            "  `id` INT NOT NULL AUTO_INCREMENT,\n" .
+            "  `sender_id` INT NOT NULL,\n" .
+            "  `receiver_id` INT NOT NULL,\n" .
+            "  `content` TEXT NOT NULL,\n" .
+            "  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" .
+            "  `read_at` DATETIME NULL,\n" .
+            "  PRIMARY KEY (`id`),\n" .
+            "  KEY `idx_messages_sender` (`sender_id`),\n" .
+            "  KEY `idx_messages_receiver` (`receiver_id`),\n" .
+            "  CONSTRAINT `fk_messages_sender` FOREIGN KEY (`sender_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,\n" .
+            "  CONSTRAINT `fk_messages_receiver` FOREIGN KEY (`receiver_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE\n" .
+            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+            // message_archives (per-user archived conversations)
+            "CREATE TABLE IF NOT EXISTS `message_archives` (\n" .
+            "  `user_id` INT NOT NULL,\n" .
+            "  `with_user_id` INT NOT NULL,\n" .
+            "  `archived_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" .
+            "  PRIMARY KEY (`user_id`, `with_user_id`),\n" .
+            "  CONSTRAINT `fk_ma_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,\n" .
+            "  CONSTRAINT `fk_ma_with` FOREIGN KEY (`with_user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE\n" .
+            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         ];
 
         foreach ($stmts as $sql) {

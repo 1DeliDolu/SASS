@@ -2,6 +2,10 @@
 // Load .env and initialize common app settings
 require_once __DIR__ . '/lib/Env.php';
 Env::load(__DIR__ . '/../.env');
+// Composer autoload (for PHPMailer, php-imap etc.)
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
+}
 
 // Default timezone (override via APP_TZ in .env)
 $tz = getenv('APP_TZ') ?: 'UTC';

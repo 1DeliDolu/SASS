@@ -2,3 +2,5 @@ node_modules/
 public/css/*.map
 .env
 .DS_Store
+
+vendor/

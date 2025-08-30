@@ -161,8 +161,180 @@ class HomeController
             exit;
         }
         $user = $_SESSION['user'];
-        $data = ['title' => 'Profilim', 'user' => $user];
+        $data = [ 'title' => 'Profilim', 'user' => $user ];
         include __DIR__ . '/../views/profile.php';
+    }
+
+    public function messages()
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        if (!isset($_SESSION['user'])) {
+            header('Location: /index.php?action=login');
+            exit;
+        }
+        $me = $_SESSION['user'];
+        require_once __DIR__ . '/../models/UserModel.php';
+        require_once __DIR__ . '/../models/MessageModel.php';
+        $userModel = new UserModel();
+        $msgModel = new MessageModel();
+        $showArchived = isset($_GET['archived']) && $_GET['archived'] === '1';
+        if ($showArchived) {
+            $allUsers = $msgModel->getArchivedPartners((int)$me['id']);
+        } else {
+            $allUsers = array_values(array_filter($userModel->getAllUsers(), function ($u) use ($me) {
+                return isset($u['id']) && $u['id'] !== $me['id'];
+            }));
+            // Filter out archived partners from the list
+            $allUsers = array_values(array_filter($allUsers, function ($u) use ($msgModel, $me) {
+                return !$msgModel->isArchived((int)$me['id'], (int)$u['id']);
+            }));
+        }
+        $withId = isset($_GET['with']) ? (int) $_GET['with'] : 0;
+        $withUser = null;
+        $conversation = [];
+        if ($withId > 0) {
+            foreach ($allUsers as $u) {
+                if ((int)$u['id'] === $withId) {
+                    $withUser = $u;
+                    break;
+                }
+            }
+            if ($withUser) {
+                // Mark incoming as read first, then fetch conversation
+                $msgModel->markAsRead((int)$me['id'], (int)$withUser['id']);
+                $conversation = $msgModel->getConversation((int)$me['id'], $withId, 200);
+            }
+        }
+        $data = [
+            'title' => 'Mesajlar',
+            'user' => $me,
+            'users' => $allUsers,
+            'withUser' => $withUser,
+            'conversation' => $conversation,
+            'archived' => $showArchived,
+            'isArchived' => $withId && $withUser ? $msgModel->isArchived((int)$me['id'], (int)$withUser['id']) : false,
+        ];
+        include __DIR__ . '/../views/messages.php';
+    }
+
+    public function messagesPartial()
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        if (!isset($_SESSION['user'])) {
+            http_response_code(401);
+            echo 'Unauthorized';
+            return;
+        }
+        $me = $_SESSION['user'];
+        $withId = isset($_GET['with']) ? (int) $_GET['with'] : 0;
+        if ($withId <= 0) {
+            http_response_code(400);
+            echo 'Bad request';
+            return;
+        }
+        require_once __DIR__ . '/../models/MessageModel.php';
+        $msgModel = new MessageModel();
+        $msgModel->markAsRead((int)$me['id'], $withId);
+        $conversation = $msgModel->getConversation((int)$me['id'], $withId, 200);
+        $data = [
+            'user' => $me,
+            'conversation' => $conversation,
+        ];
+        header('Content-Type: text/html; charset=UTF-8');
+        include __DIR__ . '/../views/partials/conversation.php';
+    }
+
+    public function messagesArchive()
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        if (!isset($_SESSION['user'])) {
+            header('Location: /index.php?action=login');
+            exit;
+        }
+        $me = $_SESSION['user'];
+        $withId = isset($_POST['with_id']) ? (int)$_POST['with_id'] : 0;
+        require_once __DIR__ . '/../models/MessageModel.php';
+        $msgModel = new MessageModel();
+        if ($withId > 0) {
+            $msgModel->archiveConversation((int)$me['id'], $withId);
+        }
+        header('Location: /index.php?action=messages');
+        exit;
+    }
+
+    public function messagesUnarchive()
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        if (!isset($_SESSION['user'])) {
+            header('Location: /index.php?action=login');
+            exit;
+        }
+        $me = $_SESSION['user'];
+        $withId = isset($_POST['with_id']) ? (int)$_POST['with_id'] : 0;
+        require_once __DIR__ . '/../models/MessageModel.php';
+        $msgModel = new MessageModel();
+        if ($withId > 0) {
+            $msgModel->unarchiveConversation((int)$me['id'], $withId);
+        }
+        $redir = '/index.php?action=messages';
+        if ($withId > 0) { $redir .= '&with=' . $withId; }
+        header('Location: ' . $redir);
+        exit;
+    }
+
+    public function sendMessage()
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        if (!isset($_SESSION['user'])) {
+            header('Location: /index.php?action=login');
+            exit;
+        }
+        $me = $_SESSION['user'];
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $toId = isset($_POST['to_id']) ? (int) $_POST['to_id'] : 0;
+            $content = isset($_POST['message']) ? trim((string) $_POST['message']) : '';
+            require_once __DIR__ . '/../models/MessageModel.php';
+            $msgModel = new MessageModel();
+            if ($toId > 0 && $content !== '') {
+                // Mesajı iç mesaja kaydet ve arşivliyse aç
+                $msgModel->unarchiveConversation((int)$me['id'], $toId);
+                $msgModel->sendMessage((int)$me['id'], $toId, $content);
+                // E‑posta olarak da gönder (FEHLER.md doğrultusunda SMTP)
+                require_once __DIR__ . '/../lib/Mailer.php';
+                $toEmail = '';
+                // resolve mail of receiver
+                require_once __DIR__ . '/../models/UserModel.php';
+                $um = new UserModel();
+                $u = $um->getUser($toId);
+                if ($u && !empty($u['mail'])) {
+                    $toEmail = $u['mail'];
+                }
+                if ($toEmail !== '') {
+                    $subject = 'Yeni mesaj - ' . (($me['adi'] ?? '') . ' ' . ($me['soyadi'] ?? ''));
+                    $html = '<p>' . nl2br(htmlspecialchars($content)) . '</p>';
+                    $text = $content;
+                    Mailer::send($toEmail, $subject, $html, $text);
+                }
+            }
+            $redir = '/index.php?action=messages';
+            if ($toId > 0) {
+                $redir .= '&with=' . $toId;
+            }
+            header('Location: ' . $redir);
+            exit;
+        }
+        header('Location: /index.php?action=messages');
+        exit;
     }
 
     public function update()
@@ -209,7 +381,9 @@ class HomeController
             if ($ok) {
                 $user = $userModel->getUser($user['id']);
                 $_SESSION['user'] = $user;
-                $message = 'Bilgileriniz güncellendi.';
+                $_SESSION['flash'] = 'Bilgileriniz güncellendi.';
+                header('Location: /index.php?action=profile');
+                exit;
             } else {
                 $error = 'Güncelleme başarısız oldu.';
             }

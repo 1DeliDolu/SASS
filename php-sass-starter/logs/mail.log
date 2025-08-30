@@ -23,3 +23,31 @@ HTML:
 <p>Proje güncellendi.</p><ul><li>Ad: Desktop_APP</li><li>Durum: yeni</li></ul>
 
 ---
+[2025-08-30 06:01:10] IMAP library not installed; skipping sync
+[2025-08-30 06:25:40] [DRY-RUN] To=mustafa.ozdemir1408@gmail.com; Subject=demo
+--bnd_8143afe530158af6
+Content-Type: text/plain; charset=UTF-8
+
+merhabaEkler:2025-08-29 23_16_21-Registrieren – Firefox Developer Edition.png (image/png)
+--bnd_8143afe530158af6
+Content-Type: text/html; charset=UTF-8
+
+merhaba<hr><p>Ekler:</p><ul><li>2025-08-29 23_16_21-Registrieren – Firefox Developer Edition.png (image/png)</li></ul>
+--bnd_8143afe530158af6--
+
+[2025-08-30 06:28:28] [DRY-RUN] To=mustafa.ozdemir1408@gmail.com; Subject=demo
+--bnd_42c3f5a31a172cac
+Content-Type: text/plain; charset=UTF-8
+
+merhaba
+--bnd_42c3f5a31a172cac
+Content-Type: text/html; charset=UTF-8
+
+merhaba
+--bnd_42c3f5a31a172cac--
+
+[2025-08-30 06:38:45] [DRY-RUN][PHPMailer] To=deli@de.de,admin@example.com,calisan2@example.com; Subject=demo
+[2025-08-30 06:39:28] [DRY-RUN][PHPMailer] To=mustafa.ozdemir1408@gmail.com,deli@de.de; Subject=fdg
+[2025-08-30 06:40:04] [DRY-RUN][PHPMailer] To=mustafa.ozdemir1408@gmail.com; Subject=(No subject)
+[2025-08-30 06:49:17] [DRY-RUN][PHPMailer] To=calisan2@example.com; Subject=Projeye atandınız: IOS_App
+[2025-08-30 06:49:43] [DRY-RUN][PHPMailer] To=musteri2@example.com; Subject=Milestone eklendi: Test
